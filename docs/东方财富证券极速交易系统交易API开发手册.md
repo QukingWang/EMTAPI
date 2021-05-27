@@ -144,7 +144,7 @@
 
 #### 1.2.4.2. demo示例
 
-```c++
+```c like
 #include <stdio.h>
 #include <thread>
 #include <string>
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 
 ### 2.2.1. <span id="CreateTraderApi">创建TraderApi</span>
 
-```c++
+```c like
 ///创建TraderApi
 ///@param client_id （必须输入）客户端id，用于区分同一用户的不同客户端，由用户自定义
 ///@param save_file_path （必须输入）存贮订阅信息文件的目录，请设定一个真实存在的有可写权限的路径
@@ -262,7 +262,7 @@ static TraderApi *CreateTraderApi(uint16_t client_id, const char *save_file_path
 
 ### 2.2.2. <span id="RegisterSpi">注册回调接口</span>
 
-```c++
+```c like
 ///注册回调接口
 ///@param spi 派生自回调接口类的实例，请在登录之前设定
 virtual void RegisterSpi(TraderSpi *spi) = 0;
@@ -270,7 +270,7 @@ virtual void RegisterSpi(TraderSpi *spi) = 0;
 
 ### 2.2.3. <span id="SubscribePublicTopic">订阅公共流</span>
 
-```c++
+```c like
 ///订阅公共流。
 ///@param resume_type 公共流（订单响应、成交回报）重传方式  
 ///        EMT_TERT_RESTART:从本交易日开始重传
@@ -282,7 +282,7 @@ virtual void SubscribePublicTopic(EMT_TE_RESUME_TYPE resume_type) = 0;
 
 ### 2.2.4. <span id="Login">用户登录请求</span>
 
-```c++
+```c like
 ///用户登录请求
 ///@return session_id表明此资金账号登录是否成功，“0”表示登录失败，可以调用GetApiLastError()来获取错误代码，非“0”表示登录成功，此时需要记录下这个返回值session_id，与登录的资金账户对应
 ///@param ip 服务器地址，类似“127.0.0.1”
@@ -297,7 +297,7 @@ virtual uint64_t Login(const char* ip, int port, const char* user, const char* p
 
 ### 2.2.5. <span id="OnDisconnected">连接通讯断开回调处理</span>
 
-```c++
+```c like
 ///当客户端的某个连接与交易后台通信连接断开时，该方法被调用。
 ///@param reason 错误原因，请与错误代码表对应
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -307,7 +307,7 @@ virtual void OnDisconnected(uint64_t session_id, int reason) {};
 
 ### 2.2.6. <span id="GetTradingDay">获取当前交易日</span>
 
-```c++
+```c like
 ///获取当前交易日
 ///@return 获取到的交易日
 ///@remark 只有登录成功后,才能得到正确的交易日
@@ -317,7 +317,7 @@ virtual const char *GetTradingDay() = 0;
 
 ### 2.2.7. <span id="GetApiLastError">获取API的系统错误</span>
 
-```c++
+```c like
 ///获取API的系统错误
 ///@return 返回的错误信息，可以在Login、InsertOrder、CancelOrder返回值为0时调用，获取失败的原因
 ///@remark 可以在调用api接口失败时调用，例如login失败时
@@ -913,7 +913,7 @@ virtual EMTRI *GetApiLastError() = 0;
 
 ### 3.3.1. <span id="EMTOrderInsertInfo">EMTOrderInsertInfo</span>
 
-```c++
+```c like
 ///新订单请求
 struct EMTOrderInsertInfo
 {
@@ -973,7 +973,7 @@ struct EMTOrderInsertInfo
 
 ### 3.3.2. <span id="EMTFundTransferReq">EMTFundTransferReq</span>
 
-```c++
+```c like
 ///用户资金请求
 /////////////////////////////////////////////////////////////////////////
 struct EMTFundTransferReq
@@ -1004,7 +1004,7 @@ struct EMTFundTransferReq
 
 ### 3.3.3. <span id="EMTQueryFundTransferLogReq">EMTQueryFundTransferLogReq</span>
 
-```c++
+```c like
 ///资金内转流水查询请求与响应
 /////////////////////////////////////////////////////////////////////////
 struct EMTQueryFundTransferLogReq {
@@ -1022,7 +1022,7 @@ struct EMTQueryFundTransferLogReq {
 
 ### 3.3.4. <span id="EMTQueryETFBaseReq">EMTQueryETFBaseReq</span>
 
-```c++
+```c like
 ///查询股票ETF合约基本情况--请求结构体,
 ///请求参数为多条件参数:1,不填则返回所有市场的ETF合约信息。
 ///                  2,只填写market,返回该交易市场下结果
@@ -1046,7 +1046,7 @@ struct EMTQueryETFBaseReq
 
 ### 3.3.5. <span id="EMTQueryOrderReq">EMTQueryOrderReq</span>
 
-```c++
+```c like
 ///报单查询请求-条件查询
 struct EMTQueryOrderReq
 {
@@ -1069,7 +1069,7 @@ struct EMTQueryOrderReq
 
 ### 3.3.6. <span id="EMTQueryTraderReq">EMTQueryTraderReq</span>
 
-```c++
+```c like
 ///查询成交回报请求-查询条件
 struct EMTQueryTraderReq
 {
@@ -1092,7 +1092,7 @@ struct EMTQueryTraderReq
 
 ### 3.3.7. <span id="EMTClientQueryCrdDebtStockReq">EMTClientQueryCrdDebtStockReq</span>
 
-```c++
+```c like
 ///融资融券指定证券上的负债未还数量请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdDebtStockReq
@@ -1111,7 +1111,7 @@ typedef struct EMTClientQueryCrdDebtStockReq
 
 ### 3.3.8. <span id="EMTClientQueryCrdPositionStockReq">EMTClientQueryCrdPositionStockReq</span>
 
-```c++
+```c like
 ///融券头寸证券查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdPositionStockReq
@@ -1130,7 +1130,7 @@ typedef struct EMTClientQueryCrdPositionStockReq
 
 ### 3.3.9. <span id="EMTClientQueryCrdSurplusStkReqInfo">EMTClientQueryCrdSurplusStkReqInfo</span>
 
-```c++
+```c like
 /// 信用业务余券查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdSurplusStkReqInfo
@@ -1149,7 +1149,7 @@ typedef struct EMTClientQueryCrdSurplusStkReqInfo
 
 ### 3.3.10. <span id="EMTCreditDebtExtendReq">EMTCreditDebtExtendReq</span>
 
-```c++
+```c like
 ///用户展期请求
 /////////////////////////////////////////////////////////////////////////
 struct EMTCreditDebtExtendReq
@@ -1176,7 +1176,7 @@ struct EMTCreditDebtExtendReq
 
 ### 3.4.1. <span id="EMTOrderInfo">EMTOrderInfo</span>
 
-```c++
+```c like
 ///报单查询响应结构体
 typedef struct EMTOrderInfo EMTQueryOrderRsp;
 
@@ -1272,7 +1272,7 @@ struct EMTOrderInfo
 
 ### 3.4.2. <span id="EMTTradeReport">EMTTradeReport</span>
 
-```c++
+```c like
 ///成交回报查询响应结构体
 typedef struct EMTTradeReport  EMTQueryTradeRsp;
 
@@ -1352,7 +1352,7 @@ struct EMTTradeReport
 
 ### 3.4.3. <span id="EMTRspInfoStruct">EMTRspInfoStruct</span>
 
-```c++
+```c like
 ///错误响应结构体
 typedef struct EMTRspInfoStruct
 {
@@ -1375,7 +1375,7 @@ typedef struct EMTRspInfoStruct
 
 ### 3.4.4. <span id="EMTOrderCancelInfo">EMTOrderCancelInfo</span>
 
-```c++
+```c like
 ///撤单失败响应消息
 struct EMTOrderCancelInfo
 {
@@ -1394,7 +1394,7 @@ struct EMTOrderCancelInfo
 
 ### 3.4.5. <span id="EMTFundTransferNotice">EMTFundTransferNotice</span>
 
-```c++
+```c like
 ///资金内转流水通知
 /////////////////////////////////////////////////////////////////////////
 struct EMTFundTransferNotice
@@ -1423,7 +1423,7 @@ struct EMTFundTransferNotice
 
 ### 3.4.6. <span id="EMTQueryAssetRsp">EMTQueryAssetRsp</span>
 
-```c++
+```c like
 ///账户资金查询响应结构体
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryAssetRsp
@@ -1521,7 +1521,7 @@ struct EMTQueryAssetRsp
 
 ### 3.4.7. <span id="EMTQueryStkPositionRsp">EMTQueryStkPositionRsp</span>
 
-```c++
+```c like
 ///查询股票持仓情况
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryStkPositionRsp
@@ -1590,7 +1590,7 @@ struct EMTQueryStkPositionRsp
 
 ### 3.4.8. <span id="EMTQueryByPageReq">EMTQueryByPageReq</span>
 
-```c++
+```c like
 ///查询订单请求-分页查询
 typedef  EMTQueryByPageReq EMTQueryOrderByPageReq;
 ///查询成交回报请求-分页查询
@@ -1623,7 +1623,7 @@ struct EMTQueryByPageReq
 
 ### 3.4.9. <span id="EMTQueryCreditDebtInfoByPageReq">EMTQueryCreditDebtInfoByPageReq</span>
 
-```c++
+```c like
 ///查询信用账户负债合约信息-分页查询
 struct EMTQueryCreditDebtInfoByPageReq
 {
@@ -1656,7 +1656,7 @@ struct EMTQueryCreditDebtInfoByPageReq
 
 ### 3.4.10. <span id="EMTQueryETFComponentRsp">EMTQueryETFComponentRsp</span>
 
-```c++
+```c like
 ///查询股票ETF成分股信息--响应结构体
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryETFComponentRsp
@@ -1710,7 +1710,7 @@ struct EMTQueryETFComponentRsp
 
 ### 3.4.11. <span id="EMTQueryIPOTickerRsp">EMTQueryIPOTickerRsp</span>
 
-```c++
+```c like
 ///查询当日可申购新股信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryIPOTickerRsp {
@@ -1744,7 +1744,7 @@ struct EMTQueryIPOTickerRsp {
 
 ### 3.4.12. <span id="EMTQueryIPOQuotaRsp">EMTQueryIPOQuotaRsp</span>
 
-```c++
+```c like
 ///查询用户申购额度-包含创业板额度
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryIPOQuotaRsp {
@@ -1769,7 +1769,7 @@ struct EMTQueryIPOQuotaRsp {
 
 ### 3.4.13. <span id="EMTCrdCashRepayRsp">EMTCrdCashRepayRsp</span>
 
-```c++
+```c like
 ///融资融券直接还款响应信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTCrdCashRepayRsp
@@ -1789,7 +1789,7 @@ struct EMTCrdCashRepayRsp
 
 ### 3.4.14. <span id="EMTCrdCashRepayDebtInterestFeeRsp">EMTCrdCashRepayDebtInterestFeeRsp</span>
 
-```c++
+```c like
 ///融资融券现金还息费响应信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTCrdCashRepayDebtInterestFeeRsp
@@ -1813,7 +1813,7 @@ struct EMTCrdCashRepayDebtInterestFeeRsp
 
 ### 3.4.15. <span id="EMTCrdCashRepayInfo">EMTCrdCashRepayInfo</span>
 
-```c++
+```c like
 ///单条融资融券直接还款记录信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTCrdCashRepayInfo
@@ -1839,7 +1839,7 @@ struct EMTCrdCashRepayInfo
 
 ### 3.4.16. <span id="EMTCrdFundInfo">EMTCrdFundInfo</span>
 
-```c++
+```c like
 ///融资融券特有帐户数据
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdFundInfo
@@ -1865,7 +1865,7 @@ typedef struct EMTCrdFundInfo
 
 ### 3.4.17. <span id="EMTCrdDebtInfo">EMTCrdDebtInfo</span>
 
-```c++
+```c like
 ///单条融资融券负债记录信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdDebtInfo
@@ -1913,7 +1913,7 @@ typedef struct EMTCrdDebtInfo
 
 ### 3.4.18. <span id="EMTCrdDebtStockInfo">EMTCrdDebtStockInfo</span>
 
-```c++
+```c like
 ///融资融券指定证券的融券负债相关信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdDebtStockInfo
@@ -1935,7 +1935,7 @@ typedef struct EMTCrdDebtStockInfo
 
 ### 3.4.19. <span id="EMTClientQueryCrdPositionStkInfo">EMTClientQueryCrdPositionStkInfo</span>
 
-```c++
+```c like
 ///融券头寸证券信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdPositionStkInfo 
@@ -1963,7 +1963,7 @@ typedef struct EMTClientQueryCrdPositionStkInfo
 
 ### 3.4.20. <span id="EMTClientQueryCrdSurplusStkRspInfo">EMTClientQueryCrdSurplusStkRspInfo</span>
 
-```c++
+```c like
 ///信用业务余券信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdSurplusStkRspInfo
@@ -1985,7 +1985,7 @@ typedef struct EMTClientQueryCrdSurplusStkRspInfo
 
 ### 3.4.21. <span id="EMTCreditDebtExtendNotice">EMTCreditDebtExtendNotice</span>
 
-```c++
+```c like
 ///用户展期请求的响应结构
 /////////////////////////////////////////////////////////////////////////
 typedef struct EMTCreditDebtExtendNotice EMTCreditDebtExtendAck;
@@ -2011,7 +2011,7 @@ struct EMTCreditDebtExtendNotice
 
 ### 3.4.22. <span id="EMTCrdFundExtraInfo">EMTCrdFundExtraInfo</span>
 
-```c++
+```c like
 /// 融资融券帐户附加信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdFundExtraInfo
@@ -2029,7 +2029,7 @@ typedef struct EMTCrdFundExtraInfo
 
 ### 3.4.23. <span id="EMTCrdPositionExtraInfo">EMTCrdPositionExtraInfo</span>
 
-```c++
+```c like
 ///融资融券帐户持仓附加信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdPositionExtraInfo
@@ -2051,7 +2051,7 @@ typedef struct EMTCrdPositionExtraInfo
 
 ### 3.4.24. <span id="EMTClientQueryCreditPledgeStkRateReq">EMTClientQueryCreditPledgeStkRateReq</span>
 
-```c++
+```c like
 ///担保品折算率查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditPledgeStkRateReq
@@ -2069,7 +2069,7 @@ typedef struct EMTClientQueryCreditPledgeStkRateReq
 
 ### 3.4.25. <span id="EMTClientQueryCreditPledgeStkRateRsp">EMTClientQueryCreditPledgeStkRateRsp</span>
 
-```c++
+```c like
 ///担保品折算率查询应答结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditPledgeStkRateRsp
@@ -2089,7 +2089,7 @@ typedef struct EMTClientQueryCreditPledgeStkRateRsp
 
 ### 3.4.26. <span id="EMTClientQueryCreditMarginRateReq">EMTClientQueryCreditMarginRateReq</span>
 
-```c++
+```c like
 ///保证金率查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditMarginRateReq
@@ -2107,7 +2107,7 @@ typedef struct EMTClientQueryCreditMarginRateReq
 
 ### 3.4.27. <span id="EMTClientQueryCreditMarginRateRsp">EMTClientQueryCreditMarginRateRsp</span>
 
-```c++
+```c like
 ///保证金率查询应答结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditMarginRateRsp
@@ -2137,7 +2137,7 @@ typedef struct EMTClientQueryCreditMarginRateRsp
 
 ### 4.1.1. <span id="OnDisconnected">OnDisconnected</span>
 
-```c++
+```c like
 ///当客户端的某个连接与交易后台通信连接断开时，该方法被调用。
 ///@param reason 错误原因，请与错误代码表对应
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -2147,7 +2147,7 @@ virtual void OnDisconnected(uint64_t session_id, int reason) {};
 
 ### 4.1.2. <span id="OnError">OnError</span>
 
-```c++
+```c like
 ///错误应答
 ///@param error_info 当服务器响应发生错误时的具体的错误代码和错误信息,当error_info为空，或者error_info.error_id为0时，表明没有错误
 ///@remark 此函数只有在服务器发生错误时才会调用，一般无需用户处理
@@ -2156,7 +2156,7 @@ virtual void OnError(EMTRI *error_info) {};
 
 ### 4.1.3. <span id="OnOrderEvent">OnOrderEvent</span>
 
-```c++
+```c like
 ///报单通知
 ///@param order_info 订单响应具体信息，用户可以通过order_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单，order_info.qty_left字段在订单为未成交、部成、全成、废单状态时，表示此订单还没有成交的数量，在部撤、全撤状态时，表示此订单被撤的数量。order_info.order_cancel_emt_id为其所对应的撤单ID，不为0时表示此单被撤成功
 ///@param error_info 订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2167,7 +2167,7 @@ virtual void OnOrderEvent(EMTOrderInfo *order_info, EMTRI *error_info, uint64_t 
 
 ### 4.1.4. <span id="OnTradeEvent">OnTradeEvent</span>
 
-```c++
+```c like
 ///成交通知
 ///@param trade_info 成交回报的具体信息，用户可以通过trade_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。对于上交所，exec_id可以唯一标识一笔成交。当发现2笔成交回报拥有相同的exec_id，则可以认为此笔交易自成交了。对于深交所，exec_id是唯一的，暂时无此判断机制。report_index+market字段可以组成唯一标识表示成交回报。
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -2177,7 +2177,7 @@ virtual void OnTradeEvent(EMTTradeReport *trade_info, uint64_t session_id) {};
 
 ### 4.1.5. <span id="OnCancelOrderError">OnCancelOrderError</span>
 
-```c++
+```c like
 ///撤单出错响应
 ///@param cancel_info 撤单具体信息，包括撤单的order_cancel_emt_id和待撤单的order_emt_id
 ///@param error_info 撤单被拒绝或者发生错误时错误代码和错误信息，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2188,7 +2188,7 @@ virtual void OnCancelOrderError(EMTOrderCancelInfo *cancel_info, EMTRI *error_in
 
 ### 4.1.6. <span id="OnQueryOrder">OnQueryOrder</span>
 
-```c++
+```c like
 ///请求查询报单响应
 ///@param order_info 查询到的一个报单
 ///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2201,7 +2201,7 @@ virtual void OnQueryOrder(EMTQueryOrderRsp *order_info, EMTRI *error_info, int r
 
 ### 4.1.7. <span id="OnQueryOrderByPage">OnQueryOrderByPage</span>
 
-```c++
+```c like
 ///分页请求查询报单响应
 ///@param order_info 查询到的一个报单
 ///@param req_count 请求到的最大数量
@@ -2216,7 +2216,7 @@ virtual void OnQueryOrderByPage(EMTQueryOrderRsp *order_info, int64_t req_count,
 
 ### 4.1.8. <span id="OnQueryTrade">OnQueryTrade</span>
 
-```c++
+```c like
 ///请求查询成交响应
 ///@param trade_info 查询到的一个成交回报
 ///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2229,7 +2229,7 @@ virtual void OnQueryTrade(EMTQueryTradeRsp *trade_info, EMTRI *error_info, int r
 
 ### 4.1.9. <span id="OnQueryTradeByPage">OnQueryTradeByPage</span>
 
-```c++
+```c like
 ///分页请求查询成交响应
 ///@param trade_info 查询到的一个成交信息
 ///@param req_count 请求到的最大数量
@@ -2244,7 +2244,7 @@ virtual void OnQueryTradeByPage(EMTQueryTradeRsp *trade_info, int64_t req_count,
 
 ### 4.1.10. <span id="OnQueryPosition">OnQueryPosition</span>
 
-```c++
+```c like
 ///请求查询投资者持仓响应
 ///@param position 查询到的一只股票的持仓情况
 ///@param error_info 查询账户持仓发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2257,7 +2257,7 @@ virtual void OnQueryPosition(EMTQueryStkPositionRsp *position, EMTRI *error_info
 
 ### 4.1.11. <span id="OnQueryPositionByPage">OnQueryPositionByPage</span>
 
-```c++
+```c like
 ///分页请求查询持仓响应
 ///@param trade_info 查询到的一个持仓信息
 ///@param req_count 请求到的最大数量
@@ -2272,7 +2272,7 @@ virtual void OnQueryPositionByPage(EMTQueryStkPositionRsp *trade_info, int64_t r
 
 ### 4.1.12. <span id="OnQueryAsset">OnQueryAsset</span>
 
-```c++
+```c like
 ///请求查询资金账户响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param asset 查询到的资金账户情况
 ///@param error_info 查询资金账户发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2285,7 +2285,7 @@ virtual void OnQueryAsset(EMTQueryAssetRsp *asset, EMTRI *error_info, int reques
 
 ### 4.1.13. <span id="OnQueryStructuredFund">OnQueryStructuredFund</span>
 
-```c++
+```c like
 ///请求查询分级基金信息响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 查询到的分级基金情况
 ///@param error_info 查询分级基金发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2298,7 +2298,7 @@ virtual void OnQueryStructuredFund(EMTStructuredFundInfo *fund_info, EMTRI *erro
 
 ### 4.1.14. <span id="OnQueryFundTransfer">OnQueryFundTransfer</span>
 
-```c++
+```c like
 ///请求查询资金划拨订单响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_transfer_info 查询到的资金账户情况
 ///@param error_info 查询资金账户发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2311,7 +2311,7 @@ virtual void OnQueryFundTransfer(EMTFundTransferNotice *fund_transfer_info, EMTR
 
 ### 4.1.15. <span id="OnFundTransfer">OnFundTransfer</span>
 
-```c++
+```c like
 ///资金划拨通知
 ///@param fund_transfer_info 资金划拨通知的具体信息，用户可以通过fund_transfer_info.serial_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 资金划拨订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。当资金划拨方向为一号两中心节点之间划拨，且error_info.error_id=11000384时，error_info.error_msg为结点中可用于划拨的资金（以整数为准），用户需进行stringToInt的转化，可据此填写合适的资金，再次发起划拨请求
@@ -2322,7 +2322,7 @@ virtual void OnFundTransfer(EMTFundTransferNotice *fund_transfer_info, EMTRI *er
 
 ### 4.1.16. <span id="OnQueryETF">OnQueryETF</span>
 
-```c++
+```c like
 ///请求查询ETF清单文件的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param etf_info 查询到的ETF清单文件情况
 ///@param error_info 查询ETF清单文件发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2335,7 +2335,7 @@ virtual void OnQueryETF(EMTQueryETFBaseRsp *etf_info, EMTRI *error_info, int req
 
 ### 4.1.17. <span id="OnQueryETFBasket">OnQueryETFBasket</span>
 
-```c++
+```c like
 ///请求查询ETF股票篮的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param etf_component_info 查询到的ETF合约的相关成分股信息
 ///@param error_info 查询ETF股票篮发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2348,7 +2348,7 @@ virtual void OnQueryETFBasket(EMTQueryETFComponentRsp *etf_component_info, EMTRI
 
 ### 4.1.18. <span id="OnQueryIPOInfoList">OnQueryIPOInfoList</span>
 
-```c++
+```c like
 ///请求查询今日新股申购信息列表的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param ipo_info 查询到的今日新股申购的一只股票信息
 ///@param error_info 查询今日新股申购信息列表发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2361,7 +2361,7 @@ virtual void OnQueryIPOInfoList(EMTQueryIPOTickerRsp *ipo_info, EMTRI *error_inf
 
 ### 4.1.19. <span id="OnQueryIPOQuotaInfo">OnQueryIPOQuotaInfo</span>
 
-```c++
+```c like
 ///请求查询用户新股申购额度信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param quota_info 查询到的用户某个市场的今日新股申购额度信息
 ///@param error_info 查查询用户新股申购额度信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2374,7 +2374,7 @@ virtual void OnQueryIPOQuotaInfo(EMTQueryIPOQuotaRsp *quota_info, EMTRI *error_i
 
 ### 4.1.20. <span id="OnQueryOptionAuctionInfo">OnQueryOptionAuctionInfo</span>
 
-```c++
+```c like
 ///请求查询期权合约的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param option_info 查询到的期权合约情况
 ///@param error_info 查询期权合约发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2387,7 +2387,7 @@ virtual void OnQueryOptionAuctionInfo(EMTQueryOptionAuctionInfoRsp *option_info,
 
 ### 4.1.21. <span id="OnCreditCashRepay">OnCreditCashRepay</span>
 
-```c++
+```c like
 ///融资融券业务中现金直接还款的响应
 ///@param cash_repay_info 现金直接还款通知的具体信息，用户可以通过cash_repay_info.emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 现金还款发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2398,7 +2398,7 @@ virtual void OnCreditCashRepay(EMTCrdCashRepayRsp *cash_repay_info, EMTRI *error
 
 ### 4.1.22. <span id="OnCreditCashRepayDebtInterestFee">OnCreditCashRepayDebtInterestFee</span>
 
-```c++
+```c like
 ///融资融券业务中现金还息的响应
 ///@param cash_repay_info 现金还息通知的具体信息，用户可以通过cash_repay_info.emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 现金还息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2409,7 +2409,7 @@ virtual void OnCreditCashRepayDebtInterestFee(EMTCrdCashRepayDebtInterestFeeRsp 
 
 ### 4.1.23. <span id="OnQueryCreditCashRepayInfo">OnQueryCreditCashRepayInfo</span>
 
-```c++
+```c like
 ///请求查询融资融券业务中的现金直接还款报单的响应
 ///@param cash_repay_info 查询到的某一笔现金直接还款通知的具体信息
 ///@param error_info 查询现金直接报单发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2422,7 +2422,7 @@ virtual void OnQueryCreditCashRepayInfo(EMTCrdCashRepayInfo *cash_repay_info, EM
 
 ### 4.1.24. <span id="OnQueryCreditFundInfo">OnQueryCreditFundInfo</span>
 
-```c++
+```c like
 ///请求查询信用账户额外信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 查询到的信用账户额外信息情况
 ///@param error_info 查询信用账户额外信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2434,7 +2434,7 @@ virtual void OnQueryCreditFundInfo(EMTCrdFundInfo *fund_info, EMTRI *error_info,
 
 ### 4.1.25. <span id="OnQueryCreditDebtInfo">OnQueryCreditDebtInfo</span>
 
-```c++
+```c like
 ///请求查询信用账户负债信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param debt_info 查询到的信用账户合约负债情况
 ///@param error_info 查询信用账户负债信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2447,7 +2447,7 @@ virtual void OnQueryCreditDebtInfo(EMTCrdDebtInfo *debt_info, EMTRI *error_info,
 
 ### 4.1.26. <span id="OnQueryCreditDebtInfoByPage">OnQueryCreditDebtInfoByPage</span>
 
-```c++
+```c like
 ///分页请求查询负债信息响应
 ///@param order_info 查询到的一个负债信息
 ///@param req_count 请求到的最大数量
@@ -2462,7 +2462,7 @@ virtual void OnQueryCreditDebtInfoByPage(EMTCrdDebtInfo *debt_info, int64_t req_
 
 ### 4.1.27. <span id="OnQueryCreditTickerDebtInfo">OnQueryCreditTickerDebtInfo</span>
 
-```c++
+```c like
 ///请求查询信用账户指定证券负债未还信息响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param debt_info 查询到的信用账户指定证券负债未还信息情况
 ///@param error_info 查询信用账户指定证券负债未还信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2475,7 +2475,7 @@ virtual void OnQueryCreditTickerDebtInfo(EMTCrdDebtStockInfo *debt_info, EMTRI *
 
 ### 4.1.28. <span id="OnQueryCreditAssetDebtInfo">OnQueryCreditAssetDebtInfo</span>
 
-```c++
+```c like
 ///请求查询信用账户待还资金的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param remain_amount 查询到的信用账户待还资金
 ///@param error_info 查询信用账户待还资金发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2487,7 +2487,7 @@ virtual void OnQueryCreditAssetDebtInfo(double remain_amount, EMTRI *error_info,
 
 ### 4.1.29. <span id="OnQueryCreditTickerAssignInfo">OnQueryCreditTickerAssignInfo</span>
 
-```c++
+```c like
 ///请求查询信用账户可融券头寸信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param assign_info 查询到的信用账户可融券头寸信息
 ///@param error_info 查询信用账户可融券头寸信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2500,7 +2500,7 @@ virtual void OnQueryCreditTickerAssignInfo(EMTClientQueryCrdPositionStkInfo *ass
 
 ### 4.1.30. <span id="OnQueryCreditTickerAssignInfoByPage">OnQueryCreditTickerAssignInfoByPage</span>
 
-```c++
+```c like
 ///分页请求查询证券头寸信息响应
 ///@param order_info 查询到的一个证券头寸信息
 ///@param req_count 请求到的最大数量
@@ -2515,7 +2515,7 @@ virtual void OnQueryCreditTickerAssignInfoByPage(EMTClientQueryCrdPositionStkInf
 
 ### 4.1.31. <span id="OnQueryCreditExcessStock">OnQueryCreditExcessStock</span>
 
-```c++
+```c like
 ///融资融券业务中请求查询指定余券信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param stock_info 查询到的余券信息
 ///@param error_info 查询信用账户余券信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2527,7 +2527,7 @@ virtual void OnQueryCreditExcessStock(EMTClientQueryCrdSurplusStkRspInfo* stock_
 
 ### 4.1.32. <span id="OnQueryMulCreditExcessStock">OnQueryMulCreditExcessStock</span>
 
-```c++
+```c like
 ///融资融券业务中请求查询余券信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param stock_info 查询到的余券信息
 ///@param error_info 查询信用账户余券信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2540,7 +2540,7 @@ virtual void OnQueryMulCreditExcessStock(EMTClientQueryCrdSurplusStkRspInfo* sto
 
 ### 4.1.33. <span id="OnCreditExtendDebtDate">OnCreditExtendDebtDate</span>
 
-```c++
+```c like
 ///融资融券业务中负债合约展期的通知
 ///@param debt_extend_info 负债合约展期通知的具体信息，用户可以通过debt_extend_info.emtid来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 负债合约展期订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。
@@ -2551,7 +2551,7 @@ virtual void OnCreditExtendDebtDate(EMTCreditDebtExtendNotice *debt_extend_info,
 
 ### 4.1.34. <span id="OnQueryCreditExtendDebtDateOrders">OnQueryCreditExtendDebtDateOrders</span>
 
-```c++
+```c like
 ///查询融资融券业务中负债合约展期订单响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param debt_extend_info 查询到的负债合约展期情况
 ///@param error_info 查询负债合约展期发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。当error_info.error_id=11000350时，表明没有记录，当为其他非0值时，表明合约发生拒单时的错误原因
@@ -2564,7 +2564,7 @@ virtual void OnQueryCreditExtendDebtDateOrders(EMTCreditDebtExtendNotice *debt_e
 
 ### 4.1.35. <span id="OnQueryCreditFundExtraInfo">OnQueryCreditFundExtraInfo</span>
 
-```c++
+```c like
 ///查询融资融券业务中信用账户附加信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 信用账户附加信息
 ///@param error_info 查询信用账户附加信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2576,7 +2576,7 @@ virtual void OnQueryCreditFundExtraInfo(EMTCrdFundExtraInfo *fund_info, EMTRI *e
 
 ### 4.1.36. <span id="OnQueryCreditPositionExtraInfo">OnQueryCreditPositionExtraInfo</span>
 
-```c++
+```c like
 ///查询融资融券业务中信用账户指定证券的附加信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 信用账户指定证券的附加信息
 ///@param error_info 查询信用账户附加信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2589,7 +2589,7 @@ virtual void OnQueryCreditPositionExtraInfo(EMTCrdPositionExtraInfo *fund_info, 
 
 ### 4.1.37. <span id="OnOptionCombinedOrderEvent">OnOptionCombinedOrderEvent</span>
 
-```c++
+```c like
 ///期权组合策略报单通知
 ///@param order_info 订单响应具体信息，用户可以通过order_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单，order_info.qty_left字段在订单为未成交、部成、全成、废单状态时，表示此订单还没有成交的数量，在部撤、全撤状态时，表示此订单被撤的数量。order_info.order_cancel_emt_id为其所对应的撤单ID，不为0时表示此单被撤成功
 ///@param error_info 订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2600,7 +2600,7 @@ virtual void OnOptionCombinedOrderEvent(EMTOptCombOrderInfo *order_info, EMTRI *
 
 ### 4.1.38. <span id="OnOptionCombinedTradeEvent">OnOptionCombinedTradeEvent</span>
 
-```c++
+```c like
 ///期权组合策略成交通知
 ///@param trade_info 成交回报的具体信息，用户可以通过trade_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。对于上交所，exec_id可以唯一标识一笔成交。当发现2笔成交回报拥有相同的exec_id，则可以认为此笔交易自成交了。对于深交所，exec_id是唯一的，暂时无此判断机制。report_index+market字段可以组成唯一标识表示成交回报。
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -2610,7 +2610,7 @@ virtual void OnOptionCombinedTradeEvent(EMTOptCombTradeReport *trade_info, uint6
 
 ### 4.1.39. <span id="OnCancelOptionCombinedOrderError">OnCancelOptionCombinedOrderError</span>
 
-```c++
+```c like
 ///期权组合策略撤单出错响应
 ///@param cancel_info 撤单具体信息，包括撤单的order_cancel_emt_id和待撤单的order_emt_id
 ///@param error_info 撤单被拒绝或者发生错误时错误代码和错误信息，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2621,7 +2621,7 @@ virtual void OnCancelOptionCombinedOrderError(EMTOptCombOrderCancelInfo *cancel_
 
 ### 4.1.40. <span id="OnQueryOptionCombinedOrders">OnQueryOptionCombinedOrders</span>
 
-```c++
+```c like
 ///请求查询期权组合策略报单响应
 ///@param order_info 查询到的一个报单
 ///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2634,7 +2634,7 @@ virtual void OnQueryOptionCombinedOrders(EMTQueryOptCombOrderRsp *order_info, EM
 
 ### 4.1.41. <span id="OnQueryOptionCombinedOrdersByPage">OnQueryOptionCombinedOrdersByPage</span>
 
-```c++
+```c like
 ///分页请求查询期权组合策略报单响应
 ///@param order_info 查询到的一个报单
 ///@param req_count 请求到的最大数量
@@ -2649,7 +2649,7 @@ virtual void OnQueryOptionCombinedOrdersByPage(EMTQueryOptCombOrderRsp *order_in
 
 ### 4.1.42. <span id="OnQueryOptionCombinedTrades">OnQueryOptionCombinedTrades</span>
 
-```c++
+```c like
 ///请求查询期权组合策略成交响应
 ///@param trade_info 查询到的一个成交回报
 ///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2662,7 +2662,7 @@ virtual void OnQueryOptionCombinedTrades(EMTQueryOptCombTradeRsp *trade_info, EM
 
 ### 4.1.43. <span id="OnQueryOptionCombinedTradesByPage">OnQueryOptionCombinedTradesByPage</span>
 
-```c++
+```c like
 ///分页请求查询期权组合策略成交响应
 ///@param trade_info 查询到的一个成交信息
 ///@param req_count 请求到的最大数量
@@ -2677,7 +2677,7 @@ virtual void OnQueryOptionCombinedTradesByPage(EMTQueryOptCombTradeRsp *trade_in
 
 ### 4.1.44. <span id="OnQueryOptionCombinedPosition">OnQueryOptionCombinedPosition</span>
 
-```c++
+```c like
 ///请求查询期权组合策略持仓响应
 ///@param position_info 查询到的一个持仓信息
 ///@param error_info 查询持仓发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2690,7 +2690,7 @@ virtual void OnQueryOptionCombinedPosition(EMTQueryOptCombPositionRsp *position_
 
 ### 4.1.45. <span id="OnQueryOptionCombinedStrategyInfo">OnQueryOptionCombinedStrategyInfo</span>
 
-```c++
+```c like
 ///请求查询期权组合策略信息响应
 ///@param strategy_info 查询到的一个组合策略信息
 ///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2703,7 +2703,7 @@ virtual void OnQueryOptionCombinedStrategyInfo(EMTQueryCombineStrategyInfoRsp *s
 
 ### 4.1.46. <span id="OnQueryCreditPledgeStkRate">OnQueryCreditPledgeStkRate</span>
 
-```c++
+```c like
 ///查询融资融券业务中担保品折算率的响应
 ///@param pledge_stk_rate_info 担保品折算率信息，查询发生错误时返回空
 ///@param error_info 查询担保品折算率发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2715,13 +2715,13 @@ virtual void OnQueryCreditPledgeStkRate(EMTClientQueryCreditPledgeStkRateRsp *pl
 
 ### 4.1.47. <span id="OnQueryOptionCombinedExecPosition">OnQueryOptionCombinedExecPosition</span>
 
-```c++
+```c like
 virtual void OnQueryOptionCombinedExecPosition(EMTQueryOptCombExecPosRsp *position_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
 ### 4.1.48. <span id="OnQueryCreditMarginRate">OnQueryCreditMarginRate</span>
 
-```c++
+```c like
 ///查询融资融券保证金率
 ///@param margin_rate_info 融资融券保证金率信息，查询发生错误时返回空
 ///@param error_info 查询融资融券保证金率发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
