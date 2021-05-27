@@ -10,6 +10,12 @@
 </head>
 <body>
   <div id="app"></div>
+  <!-- 导航栏 -->
+  <nav>
+    <a href="#/">主页</a>
+    <a href="#/Development_manual">开发手册</a>
+    <a href="#/FAQ">API常见问题</a>
+  </nav>
   <script>
     window.$docsify = {
       name: '',
@@ -35,11 +41,36 @@
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
   <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
+
+  <!-- 导航栏开启 -->
+  <script>
+    window.$docsify = {
+      loadNavbar: true
+    }
+  </script>
+  <script src="//unpkg.com/docsify"></script>
+
+  <!-- 设置封面 -->
+  <script>
+    window.$docsify = {
+      coverpage: true
+    }
+  </script>
+  <script src="//unpkg.com/docsify"></script>
+
   <!-- 实现离线化 -->
   <script>
     if (typeof navigator.serviceWorker !== 'undefined') {
       navigator.serviceWorker.register('sw.js')
     }
   </script>
+
+<script>
+    window.$docsify = {
+      coverpage: true,
+      onlyCover: true,
+    }
+  </script>
+  <script src="./docsify.min.js"></script>
 </body>
 </html>
