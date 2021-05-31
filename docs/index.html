@@ -10,16 +10,21 @@
 </head>
 <body>
   <div id="app"></div>
-  <!-- 导航栏 -->
-  <nav>
-    <a href="#/">主页</a>
-    <a href="#/Development_manual">开发手册</a>
-    <a href="#/FAQ">API常见问题</a>
-  </nav>
   <script>
     window.$docsify = {
-      name: '',
-      repo: 'https://github.com/itwanger/TechSisterLearnJava',
+      name: '',  //侧边栏标题
+      repo: 'https://github.com/itwanger/TechSisterLearnJava', //github地址
+
+      loadNavbar: true, // 顶部导航
+      loadSidebar: true, // 加载自定义侧边栏
+      maxLevel: 4, // 默认情况下会抓取文档中所有标题渲染成目录，可配置最大支持渲染的标题层级。
+      subMaxLevel: 5, // 生成目录的最大层级
+      mergeNavbar: true, // 小屏设备下合并导航栏到侧边栏
+      alias: { // 定义路由别名，可以更自由的定义路由规则。 支持正则
+        '/.*/_sidebar.md': '/_sidebar.md'//防止意外回退
+      },
+      coverpage: true, //设置封面
+      onlyCover: true,
 
       search: {
         paths: 'auto',
@@ -37,26 +42,11 @@
 
     }
   </script>
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
   <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
-
-  <!-- 导航栏开启 -->
-  <script>
-    window.$docsify = {
-      loadNavbar: true
-    }
-  </script>
-  <script src="//unpkg.com/docsify"></script>
-
-  <!-- 设置封面 -->
-  <script>
-    window.$docsify = {
-      coverpage: true
-    }
-  </script>
-  <script src="//unpkg.com/docsify"></script>
 
   <!-- 实现离线化 -->
   <script>
@@ -64,13 +54,5 @@
       navigator.serviceWorker.register('sw.js')
     }
   </script>
-
-<script>
-    window.$docsify = {
-      coverpage: true,
-      onlyCover: true,
-    }
-  </script>
-  <script src="./docsify.min.js"></script>
 </body>
 </html>

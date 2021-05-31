@@ -1,4 +1,4 @@
-![logo](_media/icon.svg)
+![logo](https://docsify.js.org/_media/icon.svg)
 
 # 我的文档网站
 
@@ -10,6 +10,4 @@
 * Multiple themes
 * Not build static html files
 
-[GitHub](https://github.com/docsifyjs/docsify/)
-[Get Started](#quick-start)
-[Get Started](#quick-start)
+[Get Started](README.md)
