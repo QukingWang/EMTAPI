@@ -1,10 +1,38 @@
-<font size="5">**东方财富证券极速交易系统交易API开发手册(Ver2.1.0)**</font>
+<font size="6">**东方财富证券极速交易系统交易API开发手册(Ver2.1.1)**</font>
 
-# 前言
+<font size="6">文档说明</font>
 
-​&emsp;&emsp;本接口规范用以指导开发通过 EMTAPI 对接的方式访问东财快速交易系统，进行现货、两融、期权的相关业务。
+<table><tbody>
+    <tr>
+        <th>日期</th><th>api 版本</th><th>修订摘要</th><th>修订人</th>
+    </tr>
+    <tr>
+        <td>20210508</td><td>2.0.0</td><td>初版</td><td>王坤瀛、张锐</td>
+    </tr>
+    <tr>
+        <td>20210517</td><td>2.0.0</td><td>增加两融业务接口</td><td>王坤瀛</td>
+    </tr>
+    <tr>
+        <td>20210527</td><td>2.1.1</td>
+        <td>现货：<br>
+            增加功能根据报单ID请求查询报单<br>
+            增加功能根据委托编号请求查询相关成交<br>
+            增加功能请求查询资金划拨<br>
+            增加功能请求查询用户新股申购额度信息<br>
+            废弃功能查询分级基金<br>
+            两融：<br>
+            增加查询未完成订单<br>
+            增加融券头寸全额占用费率<br>
+            增加查询融券头寸全额占用费率</td>
+        <td>王坤瀛</td>
+    </tr>
+</table>
 
-​&emsp;&emsp;本接口规范描述内容包括可开展的业务、必要的运行指导以及详细的数据交换格式
+<font size="6">前言</font>
+
+本接口规范用以指导开发通过 EMTAPI 对接的方式访问东财快速交易系统，进行现货、两融、期权的相关业务。
+
+本接口规范描述内容包括可开展的业务、必要的运行指导以及详细的数据交换格式
 
 # 1. EMTTraderAPI介绍
 
@@ -137,7 +165,7 @@
 
 #### 1.2.4.2. demo示例
 
-```c like
+```cpp
 #include <stdio.h>
 #include <thread>
 #include <string>
@@ -228,21 +256,21 @@ int main(int argc, char* argv[])
 
 ## 2.1. 业务支持索引
 
-|方法|描述|
-|----|----|
-|[CreateTraderApi](#CreateTraderApi)           |创建TraderApi|
-|[RegisterSpi](#RegisterSpi)                   |注册回调接口|
-|[SubscribePublicTopic](#SubscribePublicTopic) |订阅公共流|
-|[Login](#Login)                               |用户登录请求|
-|[OnDisconnected](#OnDisconnected)             |连接通讯断开回调处理|
-|[GetTradingDay](#GetTradingDay)               |获取当前交易日|
-|[GetApiLastError](#GetApiLastError)           |获取API的系统错误|
+|方法  | 描述|
+|:----|:----|
+|[CreateTraderApi](#createtraderapi)           |创建TraderApi|
+|[RegisterSpi](#registerspi)                   |注册回调接口|
+|[SubscribePublicTopic](#subscribepublictopic) |订阅公共流|
+|[Login](#login)                               |用户登录请求|
+|[OnDisconnected](#ondisconnected)             |连接通讯断开回调处理|
+|[GetTradingDay](#gettradingday)               |获取当前交易日|
+|[GetApiLastError](#getapilasterror)           |获取API的系统错误|
 
 ## 2.2. API接口描述
 
-### 2.2.1. <span id="CreateTraderApi">创建TraderApi</span>
+### 2.2.1. <a id="createtraderapi">创建TraderApi</a>
 
-```c like
+```c++
 ///创建TraderApi
 ///@param client_id （必须输入）客户端id，用于区分同一用户的不同客户端，由用户自定义
 ///@param save_file_path （必须输入）存贮订阅信息文件的目录，请设定一个真实存在的有可写权限的路径
@@ -253,17 +281,17 @@ int main(int argc, char* argv[])
 static TraderApi *CreateTraderApi(uint16_t client_id, const char *save_file_path, EMT_LOG_LEVEL log_level = EMT_LOG_LEVEL_DEBUG);
 ```
 
-### 2.2.2. <span id="RegisterSpi">注册回调接口</span>
+### 2.2.2. <a id="registerspi">注册回调接口</a>
 
-```c like
+```c++
 ///注册回调接口
 ///@param spi 派生自回调接口类的实例，请在登录之前设定
 virtual void RegisterSpi(TraderSpi *spi) = 0;
 ```
 
-### 2.2.3. <span id="SubscribePublicTopic">订阅公共流</span>
+### 2.2.3. <a id="subscribepublictopic">订阅公共流</a>
 
-```c like
+```c++
 ///订阅公共流。
 ///@param resume_type 公共流（订单响应、成交回报）重传方式  
 ///        EMT_TERT_RESTART:从本交易日开始重传
@@ -273,9 +301,9 @@ virtual void RegisterSpi(TraderSpi *spi) = 0;
 virtual void SubscribePublicTopic(EMT_TE_RESUME_TYPE resume_type) = 0;
 ```
 
-### 2.2.4. <span id="Login">用户登录请求</span>
+### 2.2.4. <a id="login">用户登录请求</a>
 
-```c like
+```c++
 ///用户登录请求
 ///@return session_id表明此资金账号登录是否成功，“0”表示登录失败，可以调用GetApiLastError()来获取错误代码，非“0”表示登录成功，此时需要记录下这个返回值session_id，与登录的资金账户对应
 ///@param ip 服务器地址，类似“127.0.0.1”
@@ -288,9 +316,9 @@ virtual void SubscribePublicTopic(EMT_TE_RESUME_TYPE resume_type) = 0;
 virtual uint64_t Login(const char* ip, int port, const char* user, const char* password, EMT_PROTOCOL_TYPE sock_type, const char* local_ip = NULL) = 0;
 ```
 
-### 2.2.5. <span id="OnDisconnected">连接通讯断开回调处理</span>
+### 2.2.5. <a id="ondisconnected">连接通讯断开回调处理</a>
 
-```c like
+```c++
 ///当客户端的某个连接与交易后台通信连接断开时，该方法被调用。
 ///@param reason 错误原因，请与错误代码表对应
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -298,9 +326,9 @@ virtual uint64_t Login(const char* ip, int port, const char* user, const char* p
 virtual void OnDisconnected(uint64_t session_id, int reason) {};
 ```
 
-### 2.2.6. <span id="GetTradingDay">获取当前交易日</span>
+### 2.2.6. <a id="gettradingday">获取当前交易日</a>
 
-```c like
+```c++
 ///获取当前交易日
 ///@return 获取到的交易日
 ///@remark 只有登录成功后,才能得到正确的交易日
@@ -308,9 +336,9 @@ virtual const char *GetTradingDay() = 0;
 
 ```
 
-### 2.2.7. <span id="GetApiLastError">获取API的系统错误</span>
+### 2.2.7. <a id="getapilasterror">获取API的系统错误</a>
 
-```c like
+```c++
 ///获取API的系统错误
 ///@return 返回的错误信息，可以在Login、InsertOrder、CancelOrder返回值为0时调用，获取失败的原因
 ///@remark 可以在调用api接口失败时调用，例如login失败时
@@ -323,57 +351,57 @@ virtual EMTRI *GetApiLastError() = 0;
 
 |请求方法(TraderApi)  |应答回调TraderSpi| 描述 |
 |:----|:----|:---|
-|[InsertOrder](#InsertOrder)  |[OnOrderEvent](#OnOrderEvent)<br>[OnTradeEvent](#OnTradeEvent)   |报单录入请求|
-|[CancelOrder](#CancelOrder)  |[OnOrderEvent](#OnOrderEvent)<br>[OnCancelOrderError](#OnCancelOrderError)|撤单请求|
-|[FundTransfer](#FundTransfer)|[OnFundTransfer](#OnFundTransfer)                                |资金划拨|
-|[QueryFundTransfer](#QueryFundTransfer)|[OnQueryFundTransfer](#OnQueryFundTransfer)            |请求查询资金划拨(信用)|
-|[QueryAsset](#QueryAsset)    |[OnQueryAsset](#OnQueryAsset)                                    |请求查询资产|
-|[QueryPosition](#QueryPosition)  |[OnQueryPosition](#OnQueryPosition)                          |请求查询投资者持仓|
-|[QueryPositionByPage](#QueryPositionByPage)  |[OnQueryPositionByPage](#OnQueryPositionByPage)  |请求查询投资者持仓分页(信用)|
-|[QueryIPOInfoList](#QueryIPOInfoList) |[OnQueryIPOInfoList](#OnQueryIPOInfoList)               |请求查询今日新股申购信息列表|
-|[QueryIPOQuotaInfo](#QueryIPOQuotaInfo) |[OnQueryIPOQuotaInfo](#OnQueryIPOQuotaInfo)           |请求查询用户新股申购额度信息(信用)|
-|[QueryETFTickerBasket](#QueryETFTickerBasket) |[OnQueryETFBasket](#OnQueryETFBasket)           |请求查询ETF股票篮|
-|[QueryOrders](#QueryOrders)     |[OnQueryOrder](#OnQueryOrder)                                 |请求查询报单|
-|[QueryTrades](#QueryTrades)     |[OnQueryTrade](#OnQueryTrade)                                 |请求查询已成交|
-|[QueryOrderByEMTID](#QueryOrderByEMTID)     |[OnQueryOrder](#OnQueryOrder)                     |根据报单ID请求查询报单(信用)|
-|[QueryOrdersByPage](#QueryOrdersByPage)     |[OnQueryOrderByPage](#OnQueryOrderByPage)         |分页请求查询报单(信用)|
-|[QueryTradesByEMTID](#QueryTradesByEMTID)   |[OnQueryTrade](#OnQueryTrade)                     |根据委托编号请求查询相关成交(信用)|
-|[QueryTradesByPage](#QueryTradesByPage)     |[OnQueryTradeByPage](#OnQueryTradeByPage)         |分页请求查询成交回报(信用)|
-|[CreditCashRepay](#CreditCashRepay)     |[OnCreditCashRepay](#OnCreditCashRepay)               |现金直接还款请求|
-|[QueryCreditCashRepayInfo](#QueryCreditCashRepayInfo)|[OnQueryCreditCashRepayInfo](#OnQueryCreditCashRepayInfo)|请求查询融资融券业务中的现金直接还款报单|
-|[QueryCreditFundInfo](#QueryCreditFundInfo)            |[OnQueryCreditFundInfo](#OnQueryCreditFundInfo)          |请求查询信用账户特有信息|
-|[QueryCreditDebtInfo](#QueryCreditDebtInfo)            |[OnQueryCreditDebtInfo](#OnQueryCreditDebtInfo)          |请求查询信用账户负债合约信息|
-|[QueryCreditDebtInfoByPage](#QueryCreditDebtInfoByPage)|[OnQueryCreditDebtInfoByPage](#OnQueryCreditDebtInfoByPage) |请求查询信用账户负债合约信息|
-|[QueryCreditTickerDebtInfo](#QueryCreditTickerDebtInfo)|[OnQueryCreditTickerDebtInfo](#OnQueryCreditTickerDebtInfo)|请求查询指定证券负债未还信息|
-|[QueryCreditAssetDebtInfo](#QueryCreditAssetDebtInfo)  |[OnQueryCreditAssetDebtInfo](#OnQueryCreditAssetDebtInfo)|请求查询信用账户待还资金信息|
-|[QueryCreditTickerAssignInfo](#QueryCreditTickerAssignInfo)|[OnQueryCreditTickerAssignInfo](#OnQueryCreditTickerAssignInfo)|请求查询信用账户可融券头寸信息|
-|[QueryCreditTickerAssignInfoByPage](#QueryCreditTickerAssignInfoByPage)|[OnQueryCreditTickerAssignInfoByPage](#OnQueryCreditTickerAssignInfoByPage)|分页请求信用账户证券头寸信息|
-|[QueryCreditExcessStock](#QueryCreditExcessStock)      |[OnQueryCreditExcessStock](#OnQueryCreditExcessStock)    |融资融券业务中请求查询指定证券的余券|
-|[QueryMulCreditExcessStock](#QueryMulCreditExcessStock)|[OnQueryMulCreditExcessStock](#OnQueryMulCreditExcessStock)|融资融券业务中请求查询余券|
-|[CreditExtendDebtDate](#CreditExtendDebtDate)          |[OnCreditExtendDebtDate](#OnCreditExtendDebtDate)        |融资融券业务中请求负债合约展期|
-|[QueryCreditExtendDebtDateOrders](#QueryCreditExtendDebtDateOrders)|[OnQueryCreditExtendDebtDateOrders](#OnQueryCreditExtendDebtDateOrders)|融资融券业务中请求查询负债合约展期|
-|[QueryCreditFundExtraInfo](#QueryCreditFundExtraInfo)  |[OnQueryCreditFundExtraInfo](#OnQueryCreditFundExtraInfo)|请求查询融资融券业务中账戶的附加信息|
-|[QueryCreditPositionExtraInfo](#QueryCreditPositionExtraInfo)|[OnQueryCreditPositionExtraInfo](#OnQueryCreditPositionExtraInfo)|请求查询融资融券业务中账戶指定证券的附加信息|
-|[QueryCreditPledgeStkRate](#QueryCreditPledgeStkRate)|[OnQueryCreditPledgeStkRate](#OnQueryCreditPledgeStkRate)  |融资融券业务中请求查询担保品折算率|
-|[QueryCreditMarginRate](#QueryCreditMarginRate)      |[OnQueryCreditMarginRate](#OnQueryCreditMarginRate)        |融资融券业务中请求查询保证金率|
+|[InsertOrder](#insertorder)  |[OnOrderEvent](#onorderevent)<br>[OnTradeEvent](#ontradeevent)   |报单录入请求|
+|[CancelOrder](#cancelorder)  |[OnOrderEvent](#onorderevent)<br>[OnCancelOrderError](#oncancelordererror)|撤单请求|
+|[FundTransfer](#fundTransfer)|[OnFundTransfer](#onfundtransfer)                                |资金划拨|
+|[QueryFundTransfer](#queryfundtransfer)|[OnQueryFundTransfer](#onqueryfundtransfer)            |请求查询资金划拨(信用)|
+|[QueryAsset](#queryasset)    |[OnQueryAsset](#onqueryasset)                                    |请求查询资产|
+|[QueryPosition](#queryposition)  |[OnQueryPosition](#onqueryposition)                          |请求查询投资者持仓|
+|[QueryPositionByPage](#querypositionbypage)  |[OnQueryPositionByPage](#onquerypositionbypage)  |请求查询投资者持仓分页(信用)|
+|[QueryIPOInfoList](#queryipoInfolist) |[OnQueryIPOInfoList](#onqueryipoInfolist)               |请求查询今日新股申购信息列表|
+|[QueryIPOQuotaInfo](#queryipoquotainfo) |[OnQueryIPOQuotaInfo](#onqueryipoquotainfo)           |请求查询用户新股申购额度信息(信用)|
+|[QueryETFTickerBasket](#queryetftickerbasket) |[OnQueryETFBasket](#onqueryetfbasket)           |请求查询ETF股票篮|
+|[QueryOrders](#queryorders)     |[OnQueryOrder](#onqueryorder)                                 |请求查询报单|
+|[QueryTrades](#querytrades)     |[OnQueryTrade](#onquerytrade)                                 |请求查询已成交|
+|[QueryOrderByEMTID](#queryorderbyemtid)     |[OnQueryOrder](#onqueryorder)                     |根据报单ID请求查询报单(信用)|
+|[QueryOrdersByPage](#queryordersbypage)     |[OnQueryOrderByPage](#onqueryorderbypage)         |分页请求查询报单(信用)|
+|[QueryTradesByEMTID](#querytradesbyemtid)   |[OnQueryTrade](#onquerytrade)                     |根据委托编号请求查询相关成交(信用)|
+|[QueryTradesByPage](#querytradesbypage)     |[OnQueryTradeByPage](#onquerytradebypage)         |分页请求查询成交回报(信用)|
+|[CreditCashRepay](#creditcashrepay)     |[OnCreditCashRepay](#oncreditcashrepay)               |现金直接还款请求|
+|[QueryCreditCashRepayInfo](#querycreditcashrepayinfo)|[OnQueryCreditCashRepayInfo](#onquerycreditcashrepayinfo)|请求查询融资融券业务中的现金直接还款报单|
+|[QueryCreditFundInfo](#querycreditfundinfo)            |[OnQueryCreditFundInfo](#onquerycreditfundinfo)          |请求查询信用账户特有信息|
+|[QueryCreditDebtInfo](#querycreditdebtinfo)            |[OnQueryCreditDebtInfo](#onquerycreditdebtinfo)          |请求查询信用账户负债合约信息|
+|[QueryCreditDebtInfoByPage](#querycreditdebtinfobypage)|[OnQueryCreditDebtInfoByPage](#onquerycreditdebtinfobypage) |请求查询信用账户负债合约信息|
+|[QueryCreditTickerDebtInfo](#querycredittickerdebtinfo)|[OnQueryCreditTickerDebtInfo](#onquerycredittickerdebtinfo)|请求查询指定证券负债未还信息|
+|[QueryCreditAssetDebtInfo](#querycreditassetdebtinfo)  |[OnQueryCreditAssetDebtInfo](#onquerycreditassetdebtinfo)|请求查询信用账户待还资金信息|
+|[QueryCreditTickerAssignInfo](#querycredittickerassigninfo)|[OnQueryCreditTickerAssignInfo](#onquerycredittickerassigninfo)|请求查询信用账户可融券头寸信息|
+|[QueryCreditTickerAssignInfoByPage](#querycredittickerassigninfobypage)|[OnQueryCreditTickerAssignInfoByPage](#onquerycredittickerassigninfobypage)|分页请求信用账户证券头寸信息|
+|[QueryCreditExcessStock](#querycreditexcessstock)      |[OnQueryCreditExcessStock](#onquerycreditexcessstock)    |融资融券业务中请求查询指定证券的余券|
+|[QueryMulCreditExcessStock](#querymulcreditexcessstock)|[OnQueryMulCreditExcessStock](#onquerymulcreditexcessstock)|融资融券业务中请求查询余券|
+|[CreditExtendDebtDate](#creditextenddebtdate)          |[OnCreditExtendDebtDate](#oncreditextenddebtdate)        |融资融券业务中请求负债合约展期|
+|[QueryCreditExtendDebtDateOrders](#querycreditextenddebtdateorders)|[OnQueryCreditExtendDebtDateOrders](#onquerycreditextenddebtdateorders)|融资融券业务中请求查询负债合约展期|
+|[QueryCreditFundExtraInfo](#querycreditfundextrainfo)  |[OnQueryCreditFundExtraInfo](#onquerycreditfundextrainfo)|请求查询融资融券业务中账戶的附加信息|
+|[QueryCreditPositionExtraInfo](#querycreditpositionextrainfo)|[OnQueryCreditPositionExtraInfo](#onquerycreditpositionextrainfo)|请求查询融资融券业务中账戶指定证券的附加信息|
+|[QueryCreditPledgeStkRate](#querycreditpledgestkrate)|[OnQueryCreditPledgeStkRate](#onquerycreditpledgestkrate)  |融资融券业务中请求查询担保品折算率|
+|[QueryCreditMarginRate](#querycreditmarginrate)      |[OnQueryCreditMarginRate](#onquerycreditmarginrate)        |融资融券业务中请求查询保证金率|
 
 ## 3.2. API接口描述
 
-### 3.2.1. <span id="InsertOrder">报单录入请求</span>
+### 3.2.1. <a id="insertorder">报单录入请求</a>
 
 |接口名称 |InsertOrder     |                          ||
-|:-------|:--|:--|:--|
+|:----------------|:--|:--|:--|
 |功能描述 |报单录入请求    |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |新订单请求     |[EMTOrderInsertInfo](#EMTOrderInsertInfo)*  |类型参见入参结构体定义|
+|入参     |新订单请求     |[EMTOrderInsertInfo](#emtorderinsertinfo)*  |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                        |资金账户对应的session_id,登录时得到|
 |出参     |函数返回值     |uint64_t                                    ||
-|         |报单响应结构体 |[EMTOrderInfo](#EMTOrderInfo)*              |类型参见出参结构体定义；异步调用回调函数返回|
-|         |报单成交结构体 |[EMTTradeReport](#EMTTradeReport)*          |类型参见出参结构体定义；订单成交时异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |报单响应结构体 |[EMTOrderInfo](#emtorderinfo)*              |类型参见出参结构体定义；异步调用回调函数返回|
+|         |报单成交结构体 |[EMTTradeReport](#emttradereport)*          |类型参见出参结构体定义；订单成交时异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |备注信息  |              |                                            ||
 
-### 3.2.2. <span id="CancelOrder">撤单请求</span>
+### 3.2.2. <a id="cancelorder">撤单请求</a>
 
 |接口名称 |CancelOrder     |                          ||
 |:-------|:--|:--|:--|
@@ -382,43 +410,43 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |需要撤销的委托单在EMT系统中的ID     |uint64_t  order_emt_id   |委托时返回序号|
 |         |会话号                            |uint64_t  session_id     |资金账户对应的session_id,登录时得到|
 |出参     |函数返回值                         |uint64_t                                    ||
-|         |报单响应结构体                     |[EMTOrderInfo](#EMTOrderInfo)*              |类型参见出参结构体定义；（撤单成功）异步调用回调函数返回|
-|         |撤单失败响应消息                   |[EMTOrderCancelInfo](#EMTOrderCancelInfo)*  |类型参见出参结构体定义；（撤单失败）异步调用回调函数返回|
-|         |错误响应结构体                     |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |报单响应结构体                     |[EMTOrderInfo](#emtorderinfo)*              |类型参见出参结构体定义；（撤单成功）异步调用回调函数返回|
+|         |撤单失败响应消息                   |[EMTOrderCancelInfo](#emtordercancelinfo)*  |类型参见出参结构体定义；（撤单失败）异步调用回调函数返回|
+|         |错误响应结构体                     |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |备注信息  |                                  |                                            ||
 
-### 3.2.3. <span id="FundTransfer">资金划拨</span>
+### 3.2.3. <a id="fundtransfer">资金划拨</a>
 
 |接口名称 |FundTransfer     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |资金划拨                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |资金请求       |[EMTFundTransferReq](#EMTFundTransferReq)*  |类型参见入参结构体定义|
+|入参     |资金请求       |[EMTFundTransferReq](#emtfundtransferreq)*  |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |出参     |函数返回值     |uint64_t                                    ||
-|         |报单响应结构体 |[EMTFundTransferNotice](#EMTFundTransferNotice)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |报单响应结构体 |[EMTFundTransferNotice](#emtfundtransfernotice)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |         |会话号        |uint64_t                                    |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.4. <span id="QueryFundTransfer">请求查询资金划拨</span>
+### 3.2.4. <a id="queryfundtransfer">请求查询资金划拨</a>
 
 |接口名称 |QueryFundTransfer     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询资金划拨                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |资金内转流水查询|[EMTQueryFundTransferLogReq](#EMTQueryFundTransferLogReq)*  |类型参见入参结构体定义|
+|入参     |资金内转流水查询|[EMTQueryFundTransferLogReq](#emtqueryfundtransferlogreq)*  |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                         ||
-|         |账户资金查询响应|[EMTFundTransferNotice](#EMTFundTransferNotice)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*  |类型参见出参结构体定义|
+|         |账户资金查询响应|[EMTFundTransferNotice](#emtfundtransfernotice)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*  |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                     |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                        |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                     |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.5. <span id="QueryAsset">请求查询资产</span>
+### 3.2.5. <a id="queryasset">请求查询资产</a>
 
 |接口名称 |QueryAsset     |                          ||
 |:-------|:--|:--|:--|
@@ -427,14 +455,14 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                         ||
-|         |账户资金查询响应|[EMTQueryAssetRsp](#EMTQueryAssetRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*  |类型参见出参结构体定义|
+|         |账户资金查询响应|[EMTQueryAssetRsp](#emtqueryassetrsp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*  |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                     |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                        |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                     |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.6. <span id="QueryPosition">请求查询投资者持仓</span>
+### 3.2.6. <a id="queryposition">请求查询投资者持仓</a>
 
 |接口名称 |QueryPosition     |                          ||
 |:-------|:--|:--|:--|
@@ -443,26 +471,26 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |持仓合约代码   |const char * ticker                         |需要查询的持仓合约代码，可以为空，如果不为空，请不带空格，并以'\0'结尾|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
-|         |市场类型      |enum      market                             |参考字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|         |市场类型      |enum      market                             |参考字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |出参     |函数返回值     |int                                         ||
-|         |账户资金查询响应|[EMTQueryStkPositionRsp](#EMTQueryStkPositionRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |账户资金查询响应|[EMTQueryStkPositionRsp](#emtquerystkpositionrsp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.7. <span id="QueryPositionByPage">请求查询投资者持仓分页</span>
+### 3.2.7. <a id="querypositionbypage">请求查询投资者持仓分页</a>
 
 |接口名称 |QueryPositionByPage     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询投资者持仓分页        |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |查询信用账户持仓信息-分页查询|[EMTQueryPositionByPageReq](#EMTQueryByPageReq)*  |类型参见入参结构体定义|
+|入参     |查询信用账户持仓信息-分页查询|[EMTQueryPositionByPageReq](#emtquerybypagereq)*  |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |查询股票持仓情况|[EMTQueryStkPositionRsp](#EMTQueryStkPositionRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |查询股票持仓情况|[EMTQueryStkPositionRsp](#emtquerystkpositionrsp)* |类型参见出参结构体定义；异步调用回调函数返回|
 |         |请求到的最大数量             |int64_t   req_count                   ||
 |         |分页请求的当前回报数量       |int64_t   trade_sequence               ||
 |         |当前报单信息所对应的查询索引  |int64_t   query_reference              |需要记录下来，在进行下一次分页查询的时候需要用到|
@@ -471,7 +499,7 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |会话号                      |uint64_t  session_id                   |资金账户对应的session_id,登录时得到|
 |备注信息  |                            |                                     ||
 
-### 3.2.8. <span id="QueryIPOInfoList">请求查询今日新股申购信息列表</span>
+### 3.2.8. <a id="queryipoinfolist">请求查询今日新股申购信息列表</a>
 
 |接口名称 |QueryIPOInfoList     |                          ||
 |:-------|:--|:--|:--|
@@ -480,14 +508,14 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |当日可申购新股信息|[EMTQueryIPOTickerRsp](#EMTQueryIPOTickerRsp)*     |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |当日可申购新股信息|[EMTQueryIPOTickerRsp](#emtqueryipotickerrsp)*     |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.9. <span id="QueryIPOQuotaInfo">请求查询用户新股申购额度信息</span>
+### 3.2.9. <a id="queryipoquotainfo">请求查询用户新股申购额度信息</a>
 
 |接口名称 |QueryIPOQuotaInfo     |                          ||
 |:-------|:--|:--|:--|
@@ -496,48 +524,48 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |当日可申购新股信息|[EMTQueryIPOQuotaRsp](#EMTQueryIPOQuotaRsp)*     |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |当日可申购新股信息|[EMTQueryIPOQuotaRsp](#emtqueryipoquotarsp)*     |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.10. <span id="QueryETF">请求查询ETF成分股</span>
+### 3.2.10. <a id="queryetftickerbasket">请求查询ETF股票篮</a>
 
-|接口名称 |QueryETF     |                          ||
+|接口名称 |QueryETFTickerBasket     |                          ||
 |:-------|:--|:--|:--|
-|功能描述 |请求查询ETF成分股                           |                             ||
+|功能描述 |请求查询ETF股票篮                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |持仓合约代码   |[EMTQueryETFBaseReq](#EMTQueryETFBaseReq)*   |类型参见入参结构体定义|
+|入参     |持仓合约代码   |[EMTQueryETFComponentReq](#emtqueryetfcomponentreq)*   |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|    |请求查询ETF股票篮的响应|[EMTQueryETFComponentRsp](#EMTQueryETFComponentRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|    |请求查询ETF股票篮的响应|[EMTQueryETFComponentRsp](#emtqueryetfcomponentrsp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.11. <span id="QueryOrders">请求查询报单</span>
+### 3.2.11. <a id="queryorders">请求查询报单</a>
 
 |接口名称 |QueryOrders     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询报单                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |请求查询报单   |[EMTQueryOrderReq](#EMTQueryOrderReq)*   |类型参见入参结构体定义|
+|入参     |请求查询报单   |[EMTQueryOrderReq](#emtqueryorderreq)*   |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |报单查询响应结构体|[EMTQueryOrderRsp](#EMTOrderInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |报单查询响应结构体|[EMTQueryOrderRsp](#emtorderinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.12. <span id="QueryOrderByEMTID">根据报单ID请求查询报单</span>
+### 3.2.12. <a id="queryorderbyemtid">根据报单ID请求查询报单</a>
 
 |接口名称 |QueryOrderByEMTID     |                          ||
 |:-------|:--|:--|:--|
@@ -547,48 +575,48 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |报单查询响应结构体|[EMTQueryOrderRsp](#EMTOrderInfo)*        |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |报单查询响应结构体|[EMTQueryOrderRsp](#emtorderinfo)*        |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                         |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                            |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.13. <span id="QueryOrdersByPage">分页请求查询报单</span>
+### 3.2.13. <a id="queryordersbypage">分页请求查询报单</a>
 
 |接口名称 |QueryOrdersByPage     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |分页请求查询报单                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |请求查询报单   |[EMTQueryOrderByPageReq](#EMTQueryByPageReq)*   |类型参见入参结构体定义|
+|入参     |请求查询报单   |[EMTQueryOrderByPageReq](#emtquerybypagereq)*   |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |报单查询响应结构体|[EMTQueryOrderRsp](#EMTOrderInfo)*        |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |报单查询响应结构体|[EMTQueryOrderRsp](#emtorderinfo)*        |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                         |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                            |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.14. <span id="QueryTrades">请求查询已成交</span>
+### 3.2.14. <a id="querytrades">请求查询已成交</a>
 
 |接口名称 |QueryTrades     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询已成交                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |查询成交回报请求   |[EMTQueryTraderReq](#EMTQueryTraderReq)*   |类型参见入参结构体定义|
+|入参     |查询成交回报请求   |[EMTQueryTraderReq](#emtquerytraderreq)*   |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |成交回报查询响应结构体|[EMTQueryTradeRsp](#EMTTradeReport)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |成交回报查询响应结构体|[EMTQueryTradeRsp](#emttradereport)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.15. <span id="QueryTradesByEMTID">根据委托编号请求查询相关成交</span>
+### 3.2.15. <a id="querytradesbyemtid">根据委托编号请求查询相关成交</a>
 
 |接口名称 |QueryTradesByEMTID     |                          ||
 |:-------|:--|:--|:--|
@@ -598,31 +626,31 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |成交回报查询响应结构体|[EMTTradeReport](#EMTTradeReport)*        |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |成交回报查询响应结构体|[EMTTradeReport](#emttradereport)*        |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                         |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                            |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.16. <span id="QueryTradesByPage">分页请求查询成交回报</span>
+### 3.2.16. <a id="querytradesbypage">分页请求查询成交回报</a>
 
 |接口名称 |QueryTradesByPage     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |分页请求查询成交回报                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |查询成交回报请求|[EMTQueryTraderReq](#EMTQueryTraderReq)*   |类型参见入参结构体定义|
+|入参     |查询成交回报请求|[EMTQueryTraderReq](#emtquerytraderreq)*   |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                          ||
-|         |成交回报查询响应结构体|[EMTTradeReport](#EMTTradeReport)*        |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*      |类型参见出参结构体定义|
+|         |成交回报查询响应结构体|[EMTTradeReport](#emttradereport)*        |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*      |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                         |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                            |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.17. <span id="CreditCashRepay">融资融券业务中现金直接还款请求</span>
+### 3.2.17. <a id="creditcashrepay">融资融券业务中现金直接还款请求</a>
 
 |接口名称 |CreditCashRepay     |                          ||
 |:-------|:--|:--|:--|
@@ -631,12 +659,12 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |现金还款的金额   |double  amount                            ||
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |出参     |函数返回值     |uint64_t                                    ||
-|         |成交回报查询响应结构体|[EMTCrdCashRepayRsp](#EMTCrdCashRepayRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |融资融券直接还款响应信息 |[EMTRspInfoStruct](#EMTRspInfoStruct)*  |类型参见出参结构体定义|
+|         |成交回报查询响应结构体|[EMTCrdCashRepayRsp](#emtcrdcashrepayrsp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |融资融券直接还款响应信息 |[EMTRspInfoStruct](#emtrspinfostruct)*  |类型参见出参结构体定义|
 |         |会话号        |uint64_t  session_id                              |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.18. <span id="QueryCreditCashRepayInfo">请求查询融资融券业务中的现金直接还款报单</span>
+### 3.2.18. <a id="querycreditcashrepayinfo">请求查询融资融券业务中的现金直接还款报单</a>
 
 |接口名称 |QueryCreditCashRepayInfo     |                          ||
 |:-------|:--|:--|:--|
@@ -645,14 +673,14 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |现金直接还款报单响应|[EMTCrdCashRepayInfo](#EMTCrdCashRepayInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |现金直接还款报单响应|[EMTCrdCashRepayInfo](#emtcrdcashrepayinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.19. <span id="QueryCreditFundInfo">请求查询信用账户特有信息</span>
+### 3.2.19. <a id="querycreditfundinfo">请求查询信用账户特有信息</a>
 
 |接口名称 |QueryCreditFundInfo     |                          ||
 |:-------|:--|:--|:--|
@@ -661,14 +689,14 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |查询信用账户额外信息响应|[EMTCrdFundInfo](#EMTCrdFundInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |查询信用账户额外信息响应|[EMTCrdFundInfo](#emtcrdfundinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.20. <span id="QueryCreditDebtInfo">请求查询信用账户负债合约信息</span>
+### 3.2.20. <a id="querycreditdebtinfo">请求查询信用账户负债合约信息</a>
 
 |接口名称 |QueryCreditDebtInfo     |                          ||
 |:-------|:--|:--|:--|
@@ -677,24 +705,24 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |查询信用账户额外信息响应|[EMTCrdDebtInfo](#EMTCrdDebtInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |查询信用账户额外信息响应|[EMTCrdDebtInfo](#emtcrddebtinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.21. <span id="QueryCreditDebtInfoByPage">分页请求信用账户负债合约信息</span>
+### 3.2.21. <a id="querycreditdebtinfobypage">分页请求信用账户负债合约信息</a>
 
 |接口名称 |QueryCreditDebtInfoByPage     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |分页请求信用账户负债合约信息                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |查询信用账户负债合约信息|[EMTQueryCreditDebtInfoByPageReq](#EMTQueryCreditDebtInfoByPageReq)*   |类型参见入参结构体定义|
+|入参     |查询信用账户负债合约信息|[EMTQueryCreditDebtInfoByPageReq](#emtquerycreditdebtinfobypagereq)*   |类型参见入参结构体定义|
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |查询信用账户额外信息响应|[EMTCrdDebtInfo](#EMTCrdDebtInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |查询信用账户额外信息响应|[EMTCrdDebtInfo](#emtcrddebtinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
 |         |请求到的最大数量             |int64_t   req_count                   ||
 |         |分页请求的当前回报数量       |int64_t   order_sequence               ||
 |         |当前报单信息所对应的查询索引  |int64_t   query_reference              |需要记录下来，在进行下一次分页查询的时候需要用到|
@@ -703,24 +731,24 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |会话号                      |uint64_t  session_id                   |资金账户对应的session_id,登录时得到|
 |备注信息  |                            |                                     ||
 
-### 3.2.22. <span id="QueryCreditTickerDebtInfo">请求查询指定证券负债未还信息</span>
+### 3.2.22. <a id="querycredittickerdebtinfo">请求查询指定证券负债未还信息</a>
 
 |接口名称 |QueryCreditTickerDebtInfo     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询指定证券负债未还信息                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |负债未还数量请求|[EMTClientQueryCrdDebtStockReq](#EMTClientQueryCrdDebtStockReq)*|类型参见入参结构体定义
+|入参     |负债未还数量请求|[EMTClientQueryCrdDebtStockReq](#emtclientquerycrddebtstockreq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |查询信用账户额外信息响应|[EMTCrdDebtStockInfo](#EMTCrdDebtStockInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |查询信用账户额外信息响应|[EMTCrdDebtStockInfo](#emtcrddebtstockinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.23. <span id="QueryCreditAssetDebtInfo">请求查询信用账户待还资金信息</span>
+### 3.2.23. <a id="querycreditassetdebtinfo">请求查询信用账户待还资金信息</a>
 
 |接口名称 |QueryCreditAssetDebtInfo     |                          ||
 |:-------|:--|:--|:--|
@@ -730,39 +758,39 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
 |         |信用账户待还资金|double remain_amount | 查询到的信用账户待还资金|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.24. <span id="QueryCreditTickerAssignInfo">请求查询信用账户可融券头寸信息</span>
+### 3.2.24. <a id="querycredittickerassigninfo">请求查询信用账户可融券头寸信息</a>
 
 |接口名称 |QueryCreditTickerAssignInfo     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询信用账户可融券头寸信息                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |融券头寸证券查询请求|[EMTClientQueryCrdPositionStockReq](#EMTClientQueryCrdPositionStockReq)*|类型参见入参结构体定义
+|入参     |融券头寸证券查询请求|[EMTClientQueryCrdPositionStockReq](#emtclientquerycrdpositionstockreq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |融券头寸证券信息|[EMTClientQueryCrdPositionStkInfo](#EMTClientQueryCrdPositionStkInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |融券头寸证券信息|[EMTClientQueryCrdPositionStkInfo](#emtclientquerycrdpositionstkinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.25. <span id="QueryCreditTickerAssignInfoByPage">分页请求信用账户证券头寸信息</span>
+### 3.2.25. <a id="querycredittickerassigninfobypage">分页请求信用账户证券头寸信息</a>
 
 |接口名称 |QueryCreditTickerAssignInfoByPage     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |分页请求信用账户证券头寸信息                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |融券头寸证券查询请求|[EMTQueryTickerAssignInfoByPageReq](#EMTQueryByPageReq)*|类型参见入参结构体定义
+|入参     |融券头寸证券查询请求|[EMTQueryTickerAssignInfoByPageReq](#emtquerybypagereq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |融券头寸证券信息|[EMTClientQueryCrdPositionStkInfo](#EMTClientQueryCrdPositionStkInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |融券头寸证券信息|[EMTClientQueryCrdPositionStkInfo](#emtclientquerycrdpositionstkinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
 |         |请求到的最大数量             |int64_t   req_count                   ||
 |         |分页请求的当前回报数量       |int64_t   order_sequence               ||
 |         |当前报单信息所对应的查询索引  |int64_t   query_reference              |需要记录下来，在进行下一次分页查询的时候需要用到|
@@ -771,55 +799,55 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |会话号                      |uint64_t  session_id                   |资金账户对应的session_id,登录时得到|
 |备注信息  |                            |                                     ||
 
-### 3.2.26. <span id="QueryCreditExcessStock">融资融券业务中请求查询指定证券的余券</span>
+### 3.2.26. <a id="querycreditexcessstock">融资融券业务中请求查询指定证券的余券</a>
 
 |接口名称 |QueryCreditExcessStock     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询指定证券余券                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |信用业务余券查询请求|[EMTClientQueryCrdSurplusStkReqInfo](#EMTClientQueryCrdSurplusStkReqInfo)*|类型参见入参结构体定义
+|入参     |信用业务余券查询请求|[EMTClientQueryCrdSurplusStkReqInfo](#emtclientquerycrdsurplusstkreqinfo)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |融券头寸证券信息|[EMTClientQueryCrdSurplusStkRspInfo](#EMTClientQueryCrdSurplusStkRspInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |融券头寸证券信息|[EMTClientQueryCrdSurplusStkRspInfo](#emtclientquerycrdsurplusstkrspinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.27. <span id="QueryMulCreditExcessStock">融资融券业务中请求查询余券</span>
+### 3.2.27. <a id="querymulcreditexcessstock">融资融券业务中请求查询余券</a>
 
 |接口名称 |QueryMulCreditExcessStock     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询余券                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |信用业务余券查询请求|[EMTClientQueryCrdSurplusStkReqInfo](#EMTClientQueryCrdSurplusStkReqInfo)*|类型参见入参结构体定义
+|入参     |信用业务余券查询请求|[EMTClientQueryCrdSurplusStkReqInfo](#emtclientquerycrdsurplusstkreqinfo)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |融券头寸证券信息|[EMTClientQueryCrdSurplusStkRspInfo](#EMTClientQueryCrdSurplusStkRspInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |融券头寸证券信息|[EMTClientQueryCrdSurplusStkRspInfo](#emtclientquerycrdsurplusstkrspinfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |备注信息  |              |                                            ||
 
-### 3.2.28. <span id="CreditExtendDebtDate">融资融券业务中请求负债合约展期</span>
+### 3.2.28. <a id="creditextenddebtdate">融资融券业务中请求负债合约展期</a>
 
 |接口名称 |CreditExtendDebtDate     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求负债合约展期                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |用户展期请求|[EMTCreditDebtExtendReq](#EMTCreditDebtExtendReq)*|类型参见入参结构体定义
+|入参     |用户展期请求|[EMTCreditDebtExtendReq](#emtcreditdebtextendreq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |出参     |函数返回值     |int                                    ||
-|         |用户展期请求的响应|[EMTCreditDebtExtendNotice](#EMTCreditDebtExtendNotice)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |用户展期请求的响应|[EMTCreditDebtExtendNotice](#emtcreditdebtextendnotice)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.29. <span id="QueryCreditExtendDebtDateOrders">融资融券业务中请求查询负债合约展期</span>
+### 3.2.29. <a id="querycreditextenddebtdateorders">融资融券业务中请求查询负债合约展期</a>
 
 |接口名称 |QueryCreditExtendDebtDateOrders     |                          ||
 |:-------|:--|:--|:--|
@@ -829,14 +857,14 @@ virtual EMTRI *GetApiLastError() = 0;
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |用户展期请求的响应|[EMTCreditDebtExtendNotice](#EMTCreditDebtExtendNotice)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |用户展期请求的响应|[EMTCreditDebtExtendNotice](#emtcreditdebtextendnotice)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |备注信息  |              |                                            ||
 
-### 3.2.30. <span id="QueryCreditFundExtraInfo">请求查询融资融券业务中账戶的附加信息</span>
+### 3.2.30. <a id="querycreditfundextrainfo">请求查询融资融券业务中账戶的附加信息</a>
 
 |接口名称 |QueryCreditFundExtraInfo     |                          ||
 |:-------|:--|:--|:--|
@@ -845,58 +873,58 @@ virtual EMTRI *GetApiLastError() = 0;
 |入参     |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |融资融券帐户附加信息|[EMTCrdFundExtraInfo](#EMTCrdFundExtraInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |融资融券帐户附加信息|[EMTCrdFundExtraInfo](#emtcrdfundextrainfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |备注信息  |              |                                            ||
 
-### 3.2.31. <span id="QueryCreditPositionExtraInfo">请求查询融资融券业务中账戶指定证券的附加信息</span>
+### 3.2.31. <a id="querycreditpositionextrainfo">请求查询融资融券业务中账戶指定证券的附加信息</a>
 
 |接口名称 |QueryCreditPositionExtraInfo     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询账戶指定证券的附加信息                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |融资融券帐户持仓附加信息|[EMTClientQueryCrdPositionStockReq](#EMTClientQueryCrdPositionStockReq)*|类型参见入参结构体定义
+|入参     |融资融券帐户持仓附加信息|[EMTClientQueryCrdPositionStockReq](#emtclientquerycrdpositionstockreq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |用户展期请求的响应|[EMTCrdPositionExtraInfo](#EMTCrdPositionExtraInfo)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |用户展期请求的响应|[EMTCrdPositionExtraInfo](#emtcrdpositionextrainfo)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |备注信息  |              |                                            ||
 
-### 3.2.32. <span id="QueryCreditPledgeStkRate">融资融券业务中请求查询担保品折算率</span>
+### 3.2.32. <a id="querycreditpledgestkrate">融资融券业务中请求查询担保品折算率</a>
 
 |接口名称 |QueryCreditPledgeStkRate     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询担保品折算率                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |担保品折算率查询请求|[EMTClientQueryCreditPledgeStkRateReq](#EMTClientQueryCreditPledgeStkRateReq)*|类型参见入参结构体定义
+|入参     |担保品折算率查询请求|[EMTClientQueryCreditPledgeStkRateReq](#emtclientquerycreditpledgestkratereq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |担保品折算率查询应答|[EMTClientQueryCreditPledgeStkRateRsp](#EMTClientQueryCreditPledgeStkRateRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |担保品折算率查询应答|[EMTClientQueryCreditPledgeStkRateRsp](#emtclientquerycreditpledgestkratersp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
 |备注信息  |              |                                            ||
 
-### 3.2.33. <span id="QueryCreditMarginRate">融资融券业务中请求查询保证金率</span>
+### 3.2.33. <a id="querycreditmarginrate">融资融券业务中请求查询保证金率</a>
 
 |接口名称 |QueryCreditMarginRate     |                          ||
 |:-------|:--|:--|:--|
 |功能描述 |请求查询保证金率                           |                             ||
 |         |<b>名称</b>   |<b>类型及长度</b>                            |<b>描述</b>|
-|入参     |保证金率查询请求|[EMTClientQueryCreditMarginRateReq](#EMTClientQueryCreditMarginRateReq)*|类型参见入参结构体定义
+|入参     |保证金率查询请求|[EMTClientQueryCreditMarginRateReq](#emtclientquerycreditmarginratereq)*|类型参见入参结构体定义
 |         |会话号        |uint64_t  session_id                         |资金账户对应的session_id,登录时得到|
 |         |请求序号      |int       request_id                         |用于用户定位查询响应的ID，由用户自定义|
 |出参     |函数返回值     |int                                    ||
-|         |保证金率查询应答|[EMTClientQueryCreditMarginRateRsp](#EMTClientQueryCreditMarginRateRsp)* |类型参见出参结构体定义；异步调用回调函数返回|
-|         |错误响应结构体 |[EMTRspInfoStruct](#EMTRspInfoStruct)*              |类型参见出参结构体定义|
+|         |保证金率查询应答|[EMTClientQueryCreditMarginRateRsp](#emtclientquerycreditmarginratersp)* |类型参见出参结构体定义；异步调用回调函数返回|
+|         |错误响应结构体 |[EMTRspInfoStruct](#emtrspinfostruct)*              |类型参见出参结构体定义|
 |         |请求序号      |int       request_id                                 |此消息响应函数对应的请求ID|
 |         |会话号        |uint64_t  session_id                                 |资金账户对应的session_id,登录时得到|
 |         |结束标识      |bool      is_last                                    |当为最后一个的时候为true，如果为false，表示还有其他后续消息响应|
@@ -904,9 +932,9 @@ virtual EMTRI *GetApiLastError() = 0;
 
 ## 3.3. 入参结构体定义
 
-### 3.3.1. <span id="EMTOrderInsertInfo">EMTOrderInsertInfo</span>
+### 3.3.1. <a id="emtorderinsertinfo">EMTOrderInsertInfo</a>
 
-```c like
+```c++
 ///新订单请求
 struct EMTOrderInsertInfo
 {
@@ -951,22 +979,22 @@ struct EMTOrderInsertInfo
 |EMT系统订单ID     |order_emt_id     |uint64_t         |N            |无需用户填写|
 |报单引用          |order_client_id  |uint32_t         |Y            |由客户自定义|
 |合约代码          |ticker           |char[16]         |Y            |客户端请求不带空格，以'\0'结尾|
-|交易市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |价格              |price            |double           |Y            ||
 |止损价            |stop_price       |double           |N            |保留字段|
 |数量              |quantity         |int64_t          |Y            |股票单位为股，逆回购单位为张|
-|报单价格类型      |price_type       |enum             |Y            |参见字典定义<br>[EMT_PRICE_TYPE](#EMT_PRICE_TYPE)|
+|报单价格类型      |price_type       |enum             |Y            |参见字典定义<br>[EMT_PRICE_TYPE](#emt_price_type)|
 |用户私有信息      |u32              |uint32_t         |N            |用来兼容老版本api，用户无需关心|
-|买卖方向          |side             |uint8_t          |Y            |参见字典定义<br>[EMT_SIDE_TYPE](#EMT_SIDE_TYPE)|
-|开平标志          |position_effect  |uint8_t          |N            |参见字典定义<br>[EMT_POSITION_EFFECT_TYPE](#EMT_POSITION_EFFECT_TYPE)|
+|买卖方向          |side             |uint8_t          |Y            |参见字典定义<br>[EMT_SIDE_TYPE](#emt_side_type)|
+|开平标志          |position_effect  |uint8_t          |N            |参见字典定义<br>[EMT_POSITION_EFFECT_TYPE](#emt_position_etfect_type)|
 |预留字段1         |reserved1        |uint8_t          |N            ||
 |预留字段2         |reserved2        |uint8_t          |N            ||
-|业务类型          |business_type    |enum             |Y            |参见字典定义<br>[EMT_BUSINESS_TYPE](#EMT_BUSINESS_TYPE)|
+|业务类型          |business_type    |enum             |Y            |参见字典定义<br>[EMT_BUSINESS_TYPE](#emt_business_type)|
 |备注信息  |              |                                            ||
 
-### 3.3.2. <span id="EMTFundTransferReq">EMTFundTransferReq</span>
+### 3.3.2. <a id="emtfundtransferreq">EMTFundTransferReq</a>
 
-```c like
+```c++
 ///用户资金请求
 /////////////////////////////////////////////////////////////////////////
 struct EMTFundTransferReq
@@ -992,12 +1020,12 @@ struct EMTFundTransferReq
 |资金账户代码     |fund_account  |char[16]         |Y            |由客户自定义|
 |资金账户密码     |password      |char[64]         |Y            |客户端请求不带空格，以'\0'结尾|
 |金额            |amount         |double          |Y            ||
-|内转类型        |transfer_type  |enum            |Y            |参见字典定义<br>[EMT_FUND_TRANSFER_TYPE](#EMT_FUND_TRANSFER_TYPE)|
+|内转类型        |transfer_type  |enum            |Y            |参见字典定义<br>[EMT_FUND_TRANSFER_TYPE](#emt_fund_transfer_type)|
 |备注信息  |              |                                            ||
 
-### 3.3.3. <span id="EMTQueryFundTransferLogReq">EMTQueryFundTransferLogReq</span>
+### 3.3.3. <a id="emtqueryfundtransferlogreq">EMTQueryFundTransferLogReq</a>
 
-```c like
+```c++
 ///资金内转流水查询请求与响应
 /////////////////////////////////////////////////////////////////////////
 struct EMTQueryFundTransferLogReq {
@@ -1013,33 +1041,32 @@ struct EMTQueryFundTransferLogReq {
 |资金内转编号     |serial_id     |uint64_t         |N            |资金内转请求时返回的序号|
 |备注信息  |              |                                     ||
 
-### 3.3.4. <span id="EMTQueryETFBaseReq">EMTQueryETFBaseReq</span>
+### 3.3.4. <a id="emtqueryetfcomponentreq">EMTQueryETFComponentReq</a>
 
-```c like
-///查询股票ETF合约基本情况--请求结构体,
-///请求参数为多条件参数:1,不填则返回所有市场的ETF合约信息。
-///                  2,只填写market,返回该交易市场下结果
-///                   3,填写market及ticker参数,只返回该etf信息。
+```c++
 //////////////////////////////////////////////////////////////////////////
-struct EMTQueryETFBaseReq
+///查询股票ETF合约成分股信息--请求结构体,请求参数为:交易市场+ETF买卖代码
+//////////////////////////////////////////////////////////////////////////
+typedef struct EMTQueryETFComponentReq
 {
     ///交易市场
-    EMT_MARKET_TYPE    market;
+    EMT_MARKET_TYPE     market;
     ///ETF买卖代码
-    char               ticker[EMT_TICKER_LEN];
-};
+    char                ticker[EMT_TICKER_LEN];
+}EMTQueryETFComponentReq;
+
 ```
 
-|查询股票ETF合约基本情况|EMTQueryETFBaseReq||||
+|查询股票ETF合约成分股信息|EMTQueryETFComponentReq||||
 |:----------------|:----------------|:----------------|:------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>必要</b>  |<b>描述</b>|
-|交易市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |ETF买卖代码       |ticker           |char[16]         |Y            |客户端请求不带空格，以'\0'结尾|
-|备注信息||||1,不填则返回所有市场的ETF合约信息。<br>2,只填写market,返回该交易市场下结果<br>3,填写market及ticker参数,只返回该etf信息。|
+|备注信息||||请求参数为:交易市场+ETF买卖代码|
 
-### 3.3.5. <span id="EMTQueryOrderReq">EMTQueryOrderReq</span>
+### 3.3.5. <a id="emtqueryorderreq">EMTQueryOrderReq</a>
 
-```c like
+```c++
 ///报单查询请求-条件查询
 struct EMTQueryOrderReq
 {
@@ -1060,9 +1087,9 @@ struct EMTQueryOrderReq
 |查询结束日期     |end_time      |int64_t         |Y            |格式为YYYYMMDDHHMMSSsss，为0则默认当前交易日0点|
 |备注信息  |根据入参条件进行匹配查询，如都不传，则查所有报单|       ||
 
-### 3.3.6. <span id="EMTQueryTraderReq">EMTQueryTraderReq</span>
+### 3.3.6. <a id="emtquerytraderreq">EMTQueryTraderReq</a>
 
-```c like
+```c++
 ///查询成交回报请求-查询条件
 struct EMTQueryTraderReq
 {
@@ -1083,9 +1110,9 @@ struct EMTQueryTraderReq
 |查询结束日期     |end_time      |int64_t         |Y            |格式为YYYYMMDDHHMMSSsss，为0则默认当前交易日0点|
 |备注信息  |根据入参条件进行匹配查询，如都不传，则查所有成交|       ||
 
-### 3.3.7. <span id="EMTClientQueryCrdDebtStockReq">EMTClientQueryCrdDebtStockReq</span>
+### 3.3.7. <a id="emtclientquerycrddebtstockreq">EMTClientQueryCrdDebtStockReq</a>
 
-```c like
+```c++
 ///融资融券指定证券上的负债未还数量请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdDebtStockReq
@@ -1098,13 +1125,13 @@ typedef struct EMTClientQueryCrdDebtStockReq
 |融资融券指定证券上的负债未还数量请求|EMTClientQueryCrdDebtStockReq||||
 |:----------------|:----------------|:----------------|:------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>必要</b>  |<b>描述</b>|
-|市场              |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|市场              |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码          |ticker           |char[16]         |Y            |客户端请求不带空格，以'\0'结尾|
 |备注信息|
 
-### 3.3.8. <span id="EMTClientQueryCrdPositionStockReq">EMTClientQueryCrdPositionStockReq</span>
+### 3.3.8. <a id="emtclientquerycrdpositionstockreq">EMTClientQueryCrdPositionStockReq</a>
 
-```c like
+```c++
 ///融券头寸证券查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdPositionStockReq
@@ -1117,13 +1144,13 @@ typedef struct EMTClientQueryCrdPositionStockReq
 |融资融券指定证券上的负债未还数量请求|EMTClientQueryCrdDebtStockReq||||
 |:----------------|:----------------|:----------------|:------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>必要</b>  |<b>描述</b>|
-|证券市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码          |ticker           |char[16]         |Y            |客户端请求不带空格，以'\0'结尾|
 |备注信息|
 
-### 3.3.9. <span id="EMTClientQueryCrdSurplusStkReqInfo">EMTClientQueryCrdSurplusStkReqInfo</span>
+### 3.3.9. <a id="emtclientquerycrdsurplusstkreqinfo">EMTClientQueryCrdSurplusStkReqInfo</a>
 
-```c like
+```c++
 /// 信用业务余券查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdSurplusStkReqInfo
@@ -1136,13 +1163,13 @@ typedef struct EMTClientQueryCrdSurplusStkReqInfo
 |信用业务余券查询请求|EMTClientQueryCrdSurplusStkReqInfo||||
 |:----------------|:----------------|:----------------|:------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>必要</b>  |<b>描述</b>|
-|证券市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场          |market           |enum             |Y            |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码          |ticker           |char[16]         |Y            |客户端请求不带空格，以'\0'结尾|
 |备注信息|
 
-### 3.3.10. <span id="EMTCreditDebtExtendReq">EMTCreditDebtExtendReq</span>
+### 3.3.10. <a id="emtcreditdebtextendreq">EMTCreditDebtExtendReq</a>
 
-```c like
+```c++
 ///用户展期请求
 /////////////////////////////////////////////////////////////////////////
 struct EMTCreditDebtExtendReq
@@ -1167,9 +1194,9 @@ struct EMTCreditDebtExtendReq
 
 ## 3.4. 出参结构体定义
 
-### 3.4.1. <span id="EMTOrderInfo">EMTOrderInfo</span>
+### 3.4.1. <a id="emtorderinfo">EMTOrderInfo</a>
 
-```c like
+```c++
 ///报单查询响应结构体
 typedef struct EMTOrderInfo EMTQueryOrderRsp;
 
@@ -1242,16 +1269,16 @@ struct EMTOrderInfo
 |撤单报单引用      |order_cancel_client_id  |uint32_t            |N     |委托回报中为0|
 |撤单EMT系统订单ID |order_cancel_emt_id     |uint64_t            |N     |委托回报中为0|
 |合约代码          |ticker                  |char[16]            |Y     |客户端请求不带空格，以'\0'结尾|
-|交易市场          |market                  |enum                |Y     |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场          |market                  |enum                |Y     |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |价格              |price                   |double             |Y     |            |
 |数量              |quantity                |int64_t            |Y     |股票单位为股，逆回购单位为张            |
-|报单价格类型      |price_type               |enum               |Y     |参见字典定义<br>[EMT_PRICE_TYPE](#EMT_PRICE_TYPE)|
+|报单价格类型      |price_type               |enum               |Y     |参见字典定义<br>[EMT_PRICE_TYPE](#emt_price_type)|
 |用户私有信息      |u32                      |uint32_t           |N     |用来兼容老版本api，用户无需关心            |
-|买卖方向          |side                    |uint8_t            |Y     |参见字典定义<br>[EMT_SIDE_TYPE](#EMT_SIDE_TYPE)|
-|开平标志          |position_effect         |uint8_t            |N     |参见字典定义<br>[EMT_POSITION_EFFECT_TYPE](#EMT_POSITION_EFFECT_TYPE)|
+|买卖方向          |side                    |uint8_t            |Y     |参见字典定义<br>[EMT_SIDE_TYPE](#emt_side_type)|
+|开平标志          |position_effect         |uint8_t            |N     |参见字典定义<br>[EMT_POSITION_EFFECT_TYPE](#emt_position_etfect_type)|
 |预留字段1         |reserved1               |uint8_t            |N     |            |
 |预留字段2         |reserved2               |uint8_t            |N     |            |
-|业务类型          |business_type           |enum               |Y     |参见字典定义<br>[EMT_BUSINESS_TYPE](#EMT_BUSINESS_TYPE)|
+|业务类型          |business_type           |enum               |Y     |参见字典定义<br>[EMT_BUSINESS_TYPE](#emt_business_type)|
 |今成交数量        |qty_traded              |int64_t            |N     |为此订单累计成交数量|
 |剩余数量          |qty_left                |int64_t            |N     |当撤单成功时，表示撤单数量<br>目前为0|
 |委托时间          |insert_time             |int64_t            |Y     |格式为YYYYMMDDHHMMSSsss|
@@ -1259,13 +1286,13 @@ struct EMTOrderInfo
 |撤销时间          |cancel_time             |int64_t            |Y     |格式为YYYYMMDDHHMMSSsss<br>目前为0|
 |成交金额          |trade_amount            |double             |N     |为此订单的成交总金额<br>目前为0|
 |本地报单编号      |order_local_id          |char[11]           |Y     |OMS生成的单号，不等同于order_emt_id，为服务器传到报盘的单号|
-|报单状态          |order_status            |enum               |Y     |订单响应中没有部分成交状态的推送，在查询订单结果中，会有部分成交状态<br>参见字典定义<br>[EMT_ORDER_STATUS_TYPE](#EMT_ORDER_STATUS_TYPE)|
-|报单提交状态      |order_submit_status     |enum               |Y     |OMS内部使用，用户可用此字段来区分撤单和报单<br>参见字典定义<br>[EMT_ORDER_SUBMIT_STATUS_TYPE](#EMT_ORDER_SUBMIT_STATUS_TYPE)|
-|报单类型          |order_type             |enum               |Y     |参见字典定义<br>[TEMTOrderTypeType](#TEMTOrderTypeType)|
+|报单状态          |order_status            |enum               |Y     |订单响应中没有部分成交状态的推送，在查询订单结果中，会有部分成交状态<br>参见字典定义<br>[EMT_ORDER_STATUS_TYPE](#emt_order_status_type)|
+|报单提交状态      |order_submit_status     |enum               |Y     |OMS内部使用，用户可用此字段来区分撤单和报单<br>参见字典定义<br>[EMT_ORDER_SUBMIT_STATUS_TYPE](#emt_order_submit_status_type)|
+|报单类型          |order_type             |enum               |Y     |参见字典定义<br>[TEMTOrderTypeType](#temtordertypetype)|
 
-### 3.4.2. <span id="EMTTradeReport">EMTTradeReport</span>
+### 3.4.2. <a id="emttradereport">EMTTradeReport</a>
 
-```c like
+```c++
 ///成交回报查询响应结构体
 typedef struct EMTTradeReport  EMTQueryTradeRsp;
 
@@ -1325,7 +1352,7 @@ struct EMTTradeReport
 |EMT系统订单ID     |order_emt_id       |uint64_t    |Y      |EMT系统订单ID，在EMT系统中唯一|
 |报单引用          |order_client_id    |uint32_t    |Y      |由客户自定义|
 |合约代码          |ticker             |char[16]    |Y      |客户端请求不带空格，以'\0'结尾|
-|交易市场          |market             |enum        |Y      |参见字典定义<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场          |market             |enum        |Y      |参见字典定义<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |订单号            |local_order_id     |uint64_t    |N      |该字段实际和order_emt_id重复。接口中暂时保留|
 |成交编号          |exec_id            |char[11]    |Y      |深交所唯一，上交所每笔交易唯一|
 |价格              |price              |double      |Y      ||
@@ -1334,18 +1361,18 @@ struct EMTTradeReport
 |成交金额          |trade_amount       |double      |Y      |此次成交的总金额=price*quantity|
 |成交序号          |report_index       |uint64_t    |Y      |回报记录号，对于单个账户来说，深交所每个平台（不同交易品种）唯一，上交所唯一，对于多账户来说，不唯一|
 |报单编号          |order_exch_id      |char[17]    |Y      |交易所单号，上交所为空，深交所有此字段<br>目前为0|
-|成交类型          |trade_type         |char        |Y      |参见字典定义<br>[TEMTTradeTypeType](#TEMTTradeTypeType)|
+|成交类型          |trade_type         |char        |Y      |参见字典定义<br>[TEMTTradeTypeType](#temttradetypetype)|
 |用户私有信息      |u32                |uint32_t    |N      |用来兼容老版本api，用户无需关心|
-|买卖方向          |side               |uint8_t     |Y      |参见字典定义<br>[EMT_SIDE_TYPE](#EMT_SIDE_TYPE)|
-|开平标志          |position_effect    |uint8_t     |N      |参见字典定义<br>[EMT_POSITION_EFFECT_TYPE](#EMT_POSITION_EFFECT_TYPE)|
+|买卖方向          |side               |uint8_t     |Y      |参见字典定义<br>[EMT_SIDE_TYPE](#emt_side_type)|
+|开平标志          |position_effect    |uint8_t     |N      |参见字典定义<br>[EMT_POSITION_EFFECT_TYPE](#emt_position_etfect_type)|
 |预留字段1         |reserved1          |uint8_t     |N      ||
 |预留字段2         |reserved2          |uint8_t     |N      ||
-|业务类型          |business_type      |enum        |Y      |参见字典定义<br>[EMT_BUSINESS_TYPE](#EMT_BUSINESS_TYPE)|
+|业务类型          |business_type      |enum        |Y      |参见字典定义<br>[EMT_BUSINESS_TYPE](#emt_business_type)|
 |交易所交易员代码  |branch_pbu         |char[7]     |Y      ||
 
-### 3.4.3. <span id="EMTRspInfoStruct">EMTRspInfoStruct</span>
+### 3.4.3. <a id="emtrspinfostruct">EMTRspInfoStruct</a>
 
-```c like
+```c++
 ///错误响应结构体
 typedef struct EMTRspInfoStruct
 {
@@ -1366,9 +1393,9 @@ typedef struct EMTRspInfoStruct
 |错误代码          |error_id               |int32_t            |Y     |参见字典定义<br>错误编码列表            |
 |错误信息          |error_msg              |char[124]          |Y     |            |
 
-### 3.4.4. <span id="EMTOrderCancelInfo">EMTOrderCancelInfo</span>
+### 3.4.4. <a id="emtordercancelinfo">EMTOrderCancelInfo</a>
 
-```c like
+```c++
 ///撤单失败响应消息
 struct EMTOrderCancelInfo
 {
@@ -1385,9 +1412,9 @@ struct EMTOrderCancelInfo
 |撤单EMTID         |order_cancel_emt_id   |uint64_t     |Y     |撤单系统委托编号|
 |原始订单EMTID     |order_emt_id          |uint64_t     |Y     |原始系统委托编号|
 
-### 3.4.5. <span id="EMTFundTransferNotice">EMTFundTransferNotice</span>
+### 3.4.5. <a id="emtfundtransfernotice">EMTFundTransferNotice</a>
 
-```c like
+```c++
 ///资金内转流水通知
 /////////////////////////////////////////////////////////////////////////
 struct EMTFundTransferNotice
@@ -1409,14 +1436,14 @@ struct EMTFundTransferNotice
 |:----------------|:----------------|:----------------|:------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>必要</b>  |<b>描述</b>|
 |资金内转编号     |serial_id         |uint64_t     |Y         |资金内转编号|
-|内转类型         |transfer_type     |enum         |Y         |参见字典定义<br>[EMT_FUND_TRANSFER_TYPE](#EMT_FUND_TRANSFER_TYPE)|
+|内转类型         |transfer_type     |enum         |Y         |参见字典定义<br>[EMT_FUND_TRANSFER_TYPE](#emt_fund_transfer_type)|
 |金额             |amount            |double       |Y         |金额|
-|操作结果         |oper_status       |enum         |Y         |参见字典定义<br>[EMT_FUND_OPER_STATUS](#EMT_FUND_OPER_STATUS)|
+|操作结果         |oper_status       |enum         |Y         |参见字典定义<br>[EMT_FUND_OPER_STATUS](#emt_fund_oper_status)|
 |操作时间         |transfer_time     |uint64_t     |Y         |格式为YYYYMMDDHHMMSSsss|
 
-### 3.4.6. <span id="EMTQueryAssetRsp">EMTQueryAssetRsp</span>
+### 3.4.6. <a id="emtqueryassetrsp">EMTQueryAssetRsp</a>
 
-```c like
+```c++
 ///账户资金查询响应结构体
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryAssetRsp
@@ -1494,7 +1521,7 @@ struct EMTQueryAssetRsp
 |累计卖出成交证券所得资金  |fund_sell_amount           |double       |保留字段，目前为0 |
 |累计卖出成交交易费用      |fund_sell_fee              |double       |保留字段，目前为0 |
 |EMT系统预扣的资金         |withholding_amount         |double       |保留字段，目前为0 |
-|账户类型                  |account_type               |enum         |参考字典<br>[EMT_ACCOUNT_TYPE](#EMT_ACCOUNT_TYPE)|
+|账户类型                  |account_type               |enum         |参考字典<br>[EMT_ACCOUNT_TYPE](#emt_account_type)|
 |冻结的保证金              |frozen_margin              |double       |保留字段，目前为0 |
 |行权冻结资金              |frozen_exec_cash           |double       |保留字段，目前为0 |
 |行权费用                  |frozen_exec_fee            |double       |保留字段，目前为0 |
@@ -1512,9 +1539,9 @@ struct EMTQueryAssetRsp
 |累计撤单流量费            |fund_cancel_data_charges   |double       |保留字段，目前为0 |
 |保留字段                  |unknown                    |uint64_t[28] |保留字段，目前为0 |
 
-### 3.4.7. <span id="EMTQueryStkPositionRsp">EMTQueryStkPositionRsp</span>
+### 3.4.7. <a id="emtquerystkpositionrsp">EMTQueryStkPositionRsp</a>
 
-```c like
+```c++
 ///查询股票持仓情况
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryStkPositionRsp
@@ -1565,14 +1592,14 @@ struct EMTQueryStkPositionRsp
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
 |证券代码                |ticker                  |char[16]       |证券代码|
 |证券名称                |ticker_name             |char[64]       |保留字段，目前为not_ready|
-|交易市场                |market                  |enum           |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场                |market                  |enum           |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |总持仓                  |total_qty               |int64_t        |总持仓|
 |可卖持仓                |sellable_qty            |int64_t        |可卖持仓|
 |持仓成本                |avg_price               |double         |持仓成本|
 |浮动盈亏                |unrealized_pnl          |double         |保留字段，目前为0|
 |昨日持仓                |yesterday_position      |int64_t        |昨日持仓|
 |今日申购赎回数量        |purchase_redeemable_qty |int64_t        |保留字段，目前为0|
-|持仓方向                |position_direction      |enum           |参照字典<br>[EMT_POSITION_DIRECTION_TYPE](#EMT_POSITION_DIRECTION_TYPE)|
+|持仓方向                |position_direction      |enum           |参照字典<br>[EMT_POSITION_DIRECTION_TYPE](#emt_position_direction_type)|
 |保留字段1               |reserved1               |uint32_t       |保留字段，目前为0|
 |可行权合约              |executable_option       |int64_t        |保留字段，目前为0|
 |可锁定标的              |lockable_position       |int64_t        |保留字段，目前为0|
@@ -1581,9 +1608,9 @@ struct EMTQueryStkPositionRsp
 |可用已锁定标的          |usable_locked_position  |int64_t        |保留字段，目前为0|
 |保留字段                |unknown                 |uint64_t[28]   |保留字段，目前为0|
 
-### 3.4.8. <span id="EMTQueryByPageReq">EMTQueryByPageReq</span>
+### 3.4.8. <a id="emtquerybypagereq">EMTQueryByPageReq</a>
 
-```c like
+```c++
 ///查询订单请求-分页查询
 typedef  EMTQueryByPageReq EMTQueryOrderByPageReq;
 ///查询成交回报请求-分页查询
@@ -1614,9 +1641,9 @@ struct EMTQueryByPageReq
 |上一次收到的查询订单结果中带回来的索引 |reference        |int64_t       ||
 |保留字段                            |reserved         |int64_t       ||
 
-### 3.4.9. <span id="EMTQueryCreditDebtInfoByPageReq">EMTQueryCreditDebtInfoByPageReq</span>
+### 3.4.9. <a id="emtquerycreditdebtinfobypagereq">EMTQueryCreditDebtInfoByPageReq</a>
 
-```c like
+```c++
 ///查询信用账户负债合约信息-分页查询
 struct EMTQueryCreditDebtInfoByPageReq
 {
@@ -1647,9 +1674,9 @@ struct EMTQueryCreditDebtInfoByPageReq
 |合约类型                            |debttype         |uint8_t       ||
 |保留字段                            |reserved         |uint8_t       ||
 
-### 3.4.10. <span id="EMTQueryETFComponentRsp">EMTQueryETFComponentRsp</span>
+### 3.4.10. <a id="emtqueryetfcomponentrsp">EMTQueryETFComponentRsp</a>
 
-```c like
+```c++
 ///查询股票ETF成分股信息--响应结构体
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryETFComponentRsp
@@ -1687,12 +1714,12 @@ struct EMTQueryETFComponentRsp
 |查询股票ETF成分股信息|EMTQueryETFComponentRsp|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|交易市场          |market                    |enum       |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场          |market                    |enum       |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |ETF代码           |ticker                    |char[16]   |ETF代码|
 |成份股代码        |component_ticker          |char[16]   |成份股代码|
-|成份股名称        |component_name            |char[64]   |参照字典<br>[EMT_TICKER_TYPE](#EMT_TICKER_TYPE)|
+|成份股名称        |component_name            |char[64]   |参照字典<br>[EMT_TICKER_TYPE](#emt_ticker_type)|
 |成份股数量        |quantity                  |int64_t    |成份股数量|
-|成份股交易市场    |component_market          |enum       |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)<br>保留字段，目前为0|
+|成份股交易市场    |component_market          |enum       |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)<br>保留字段，目前为0|
 |成份股替代标识    |replace_type              |enum       |保留字段，目前为0|
 |溢价比例          |premium_ratio             |           |保留字段，目前为0|
 |总金额            |amount                    |           |保留字段，目前为0|
@@ -1701,9 +1728,9 @@ struct EMTQueryETFComponentRsp
 |申购总金额        |creation_amount           |           |保留字段，目前为0|
 |赎回总金额        |redemption_amount         |           |保留字段，目前为0|
 
-### 3.4.11. <span id="EMTQueryIPOTickerRsp">EMTQueryIPOTickerRsp</span>
+### 3.4.11. <a id="emtqueryipotickerrsp">EMTQueryIPOTickerRsp</a>
 
-```c like
+```c++
 ///查询当日可申购新股信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryIPOTickerRsp {
@@ -1727,17 +1754,17 @@ struct EMTQueryIPOTickerRsp {
 |查询当日可申购新股信息|EMTQueryIPOTickerRsp|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|交易市场            |market             |enum         |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场            |market             |enum         |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |申购代码            |ticker             |char[16]     ||
 |申购股票名称        |ticker_name        |char[64]     |保留字段，目前为not_ready|
-|证券类别            |ticker_type        |enum         |参照字典<br>[EMT_TICKER_TYPE](#EMT_TICKER_TYPE)|
+|证券类别            |ticker_type        |enum         |参照字典<br>[EMT_TICKER_TYPE](#emt_ticker_type)|
 |申购价格            |price              |double       ||
 |申购单元            |unit               |int32_t      |保留字段，目前为0|
 |最大允许申购数量    |qty_upper_limit    |int32_t      ||
 
-### 3.4.12. <span id="EMTQueryIPOQuotaRsp">EMTQueryIPOQuotaRsp</span>
+### 3.4.12. <a id="emtqueryipoquotarsp">EMTQueryIPOQuotaRsp</a>
 
-```c like
+```c++
 ///查询用户申购额度-包含创业板额度
 //////////////////////////////////////////////////////////////////////////
 struct EMTQueryIPOQuotaRsp {
@@ -1755,14 +1782,14 @@ struct EMTQueryIPOQuotaRsp {
 |查询用户申购额度-包含创业板额度|EMTQueryIPOQuotaRsp|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|交易市场          |market             |enum         |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|交易市场          |market             |enum         |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |可申购额度        |quantity    |int32_t      ||
 |上海科创板额度    |tech_quantity    |int32_t      ||
 |保留             |unused    |int32_t      ||
 
-### 3.4.13. <span id="EMTCrdCashRepayRsp">EMTCrdCashRepayRsp</span>
+### 3.4.13. <a id="emtcrdcashrepayrsp">EMTCrdCashRepayRsp</a>
 
-```c like
+```c++
 ///融资融券直接还款响应信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTCrdCashRepayRsp
@@ -1780,9 +1807,9 @@ struct EMTCrdCashRepayRsp
 |直接还款的申请金额  |request_amount      |double    ||
 |实际还款使用金额    |cash_repay_amount   |double    ||
 
-### 3.4.14. <span id="EMTCrdCashRepayDebtInterestFeeRsp">EMTCrdCashRepayDebtInterestFeeRsp</span>
+### 3.4.14. <a id="emtcrdcashrepaydebtinterestfeersp">EMTCrdCashRepayDebtInterestFeeRsp</a>
 
-```c like
+```c++
 ///融资融券现金还息费响应信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTCrdCashRepayDebtInterestFeeRsp
@@ -1804,9 +1831,9 @@ struct EMTCrdCashRepayDebtInterestFeeRsp
 |指定的负债合约编号   |debt_compact_id    |char[33]      ||
 |保留字段            |unknow             |char[32]      ||
 
-### 3.4.15. <span id="EMTCrdCashRepayInfo">EMTCrdCashRepayInfo</span>
+### 3.4.15. <a id="emtcrdcashrepayinfo">EMTCrdCashRepayInfo</a>
 
-```c like
+```c++
 ///单条融资融券直接还款记录信息
 //////////////////////////////////////////////////////////////////////////
 struct EMTCrdCashRepayInfo
@@ -1824,15 +1851,15 @@ struct EMTCrdCashRepayInfo
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
 |直接还款操作的EMTID |emt_id              |int64_t       ||
-|直接还款处理状态    |status              |enum          |参照字典<br>[EMT_CRD_CR_STATUS](#EMT_CRD_CR_STATUS)|
+|直接还款处理状态    |status              |enum          |参照字典<br>[EMT_CRD_CR_STATUS](#emt_crd_cr_status)|
 |直接还款的申请金额  |request_amount      |double       ||
 |实际还款使用金额    |cash_repay_amount   |double       ||
-|强平标志           |debt_compact_id     |enum          |参照字典<br>[EMT_POSITION_EFFECT_TYPE](#EMT_POSITION_EFFECT_TYPE)|
-|直接还款发生错误时的错误信息 |error_info  |struct        |结构体<br>[EMTRI](#EMTRI)|
+|强平标志           |debt_compact_id     |enum          |参照字典<br>[EMT_POSITION_EFFECT_TYPE](#emt_position_etfect_type)|
+|直接还款发生错误时的错误信息 |error_info  |struct        |结构体<br>[EMTRI](#emtri)|
 
-### 3.4.16. <span id="EMTCrdFundInfo">EMTCrdFundInfo</span>
+### 3.4.16. <a id="emtcrdfundinfo">EMTCrdFundInfo</a>
 
-```c like
+```c++
 ///融资融券特有帐户数据
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdFundInfo
@@ -1856,9 +1883,9 @@ typedef struct EMTCrdFundInfo
 |两融保证金可用数  |guaranty         |double        ||
 |融资头寸可用金额  |position_amount  |double        |内部接口，正式版本需要删除|
 
-### 3.4.17. <span id="EMTCrdDebtInfo">EMTCrdDebtInfo</span>
+### 3.4.17. <a id="emtcrddebtinfo">EMTCrdDebtInfo</a>
 
-```c like
+```c++
 ///单条融资融券负债记录信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdDebtInfo
@@ -1891,7 +1918,7 @@ typedef struct EMTCrdDebtInfo
 |负债对应两融头寸编号    |position_id           |int64_t           ||
 |生成负债的订单编号      |order_emt_id          |uint64_t          |非当日负债无此项 |
 |负债合约状态            |debt_status           |int32_t           |0-未偿还或部分偿还<br>1-已偿还<br>2-过期未平仓<br>3-未知|
-|市场                    |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|市场                    |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码                |ticker                |char[16]          ||
 |委托日期                |order_date            |uint64_t          ||
 |负债截止日期            |end_date              |uint64_t          ||
@@ -1904,9 +1931,9 @@ typedef struct EMTCrdDebtInfo
 |在途权益金额            |trans_righs_amt       |double            ||
 |在途权益数量            |trans_righs_qty       |int64_t           ||
 
-### 3.4.18. <span id="EMTCrdDebtStockInfo">EMTCrdDebtStockInfo</span>
+### 3.4.18. <a id="emtcrddebtstockinfo">EMTCrdDebtStockInfo</a>
 
-```c like
+```c++
 ///融资融券指定证券的融券负债相关信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdDebtStockInfo
@@ -1921,14 +1948,14 @@ typedef struct EMTCrdDebtStockInfo
 |指定证券的融券负债相关信息|EMTCrdDebtStockInfo|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|市场                    |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|市场                    |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码                |ticker                |char[16]          ||
 |融券负债可还券数量       |stock_repay_quantity  |int64_t           ||
 |融券负债未还总数量       |stock_total_quantity  |int64_t           ||
 
-### 3.4.19. <span id="EMTClientQueryCrdPositionStkInfo">EMTClientQueryCrdPositionStkInfo</span>
+### 3.4.19. <a id="emtclientquerycrdpositionstkinfo">EMTClientQueryCrdPositionStkInfo</a>
 
-```c like
+```c++
 ///融券头寸证券信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdPositionStkInfo 
@@ -1946,7 +1973,7 @@ typedef struct EMTClientQueryCrdPositionStkInfo
 |融券头寸证券信息|EMTClientQueryCrdPositionStkInfo|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|市场                |market               |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|市场                |market               |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码            |ticker               |char[16]          ||
 |融券限量            |limit_qty            |int64_t           ||
 |昨日日融券数量       |yesterday_qty       |int64_t           ||
@@ -1954,9 +1981,9 @@ typedef struct EMTClientQueryCrdPositionStkInfo
 |冻结融券数量         |frozen_qty          |int64_t           ||
 |融券头寸到期日       |end_date            |int64_t           ||
 
-### 3.4.20. <span id="EMTClientQueryCrdSurplusStkRspInfo">EMTClientQueryCrdSurplusStkRspInfo</span>
+### 3.4.20. <a id="emtclientquerycrdsurplusstkrspinfo">EMTClientQueryCrdSurplusStkRspInfo</a>
 
-```c like
+```c++
 ///信用业务余券信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCrdSurplusStkRspInfo
@@ -1971,14 +1998,14 @@ typedef struct EMTClientQueryCrdSurplusStkRspInfo
 |信用业务余券信息|EMTClientQueryCrdSurplusStkRspInfo|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码         |ticker                |char[16]          ||
 |可划转数量       |transferable_quantity  |int64_t           ||
 |已划转数量       |transferred_quantity  |int64_t           ||
 
-### 3.4.21. <span id="EMTCreditDebtExtendNotice">EMTCreditDebtExtendNotice</span>
+### 3.4.21. <a id="emtcreditdebtextendnotice">EMTCreditDebtExtendNotice</a>
 
-```c like
+```c++
 ///用户展期请求的响应结构
 /////////////////////////////////////////////////////////////////////////
 typedef struct EMTCreditDebtExtendNotice EMTCreditDebtExtendAck;
@@ -1999,12 +2026,12 @@ struct EMTCreditDebtExtendNotice
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
 |EMT系统订单ID    |emtid             |uint64_t         |无需用户填写，在EMT系统中唯一|
 |负债合约编号      |debt_id          |char[33]          ||
-|展期请求操作状态  |oper_status       |enum              |参照字典<br>[EMT_DEBT_EXTEND_OPER_STATUS](#EMT_DEBT_EXTEND_OPER_STATUS)|
+|展期请求操作状态  |oper_status       |enum              |参照字典<br>[EMT_DEBT_EXTEND_OPER_STATUS](#emt_debt_extend_oper_status)|
 |操作时间         |oper_time         |uint64_t           ||
 
-### 3.4.22. <span id="EMTCrdFundExtraInfo">EMTCrdFundExtraInfo</span>
+### 3.4.22. <a id="emtcrdfundextrainfo">EMTCrdFundExtraInfo</a>
 
-```c like
+```c++
 /// 融资融券帐户附加信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdFundExtraInfo
@@ -2020,9 +2047,9 @@ typedef struct EMTCrdFundExtraInfo
 |融券卖出所得资金   |mf_rs_avl_used   |double          |当前资金账户购买货币基金使用的融券卖出所得资金占用|
 |预留空间          |reserve          |char[64]        ||
 
-### 3.4.23. <span id="EMTCrdPositionExtraInfo">EMTCrdPositionExtraInfo</span>
+### 3.4.23. <a id="emtcrdpositionextrainfo">EMTCrdPositionExtraInfo</a>
 
-```c like
+```c++
 ///融资融券帐户持仓附加信息
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTCrdPositionExtraInfo
@@ -2037,14 +2064,14 @@ typedef struct EMTCrdPositionExtraInfo
 |融资融券帐户持仓附加信息|EMTCrdPositionExtraInfo|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码             |ticker                |char[16]          ||
 |融券卖出所得资金占用  |transferable_quantity  |double           ||
 |预留空间             |transferred_quantity  |char[64]          ||
 
-### 3.4.24. <span id="EMTClientQueryCreditPledgeStkRateReq">EMTClientQueryCreditPledgeStkRateReq</span>
+### 3.4.24. <a id="emtclientquerycreditpledgestkratereq">EMTClientQueryCreditPledgeStkRateReq</a>
 
-```c like
+```c++
 ///担保品折算率查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditPledgeStkRateReq
@@ -2057,12 +2084,12 @@ typedef struct EMTClientQueryCreditPledgeStkRateReq
 |担保品折算率查询请求结构体|EMTClientQueryCreditPledgeStkRateReq|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码             |ticker                |char[16]          ||
 
-### 3.4.25. <span id="EMTClientQueryCreditPledgeStkRateRsp">EMTClientQueryCreditPledgeStkRateRsp</span>
+### 3.4.25. <a id="emtclientquerycreditpledgestkratersp">EMTClientQueryCreditPledgeStkRateRsp</a>
 
-```c like
+```c++
 ///担保品折算率查询应答结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditPledgeStkRateRsp
@@ -2076,13 +2103,13 @@ typedef struct EMTClientQueryCreditPledgeStkRateRsp
 |担保品折算率查询应答结构体|EMTClientQueryCreditPledgeStkRateRsp|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码             |ticker                |char[16]          ||
 |担保品折算率         |pledge_rate           |double            ||
 
-### 3.4.26. <span id="EMTClientQueryCreditMarginRateReq">EMTClientQueryCreditMarginRateReq</span>
+### 3.4.26. <a id="emtclientquerycreditmarginratereq">EMTClientQueryCreditMarginRateReq</a>
 
-```c like
+```c++
 ///保证金率查询请求结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditMarginRateReq
@@ -2095,12 +2122,12 @@ typedef struct EMTClientQueryCreditMarginRateReq
 |保证金率查询请求结构体|EMTClientQueryCreditMarginRateReq|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码             |ticker                |char[16]          ||
 
-### 3.4.27. <span id="EMTClientQueryCreditMarginRateRsp">EMTClientQueryCreditMarginRateRsp</span>
+### 3.4.27. <a id="emtclientquerycreditmarginratersp">EMTClientQueryCreditMarginRateRsp</a>
 
-```c like
+```c++
 ///保证金率查询应答结构体
 //////////////////////////////////////////////////////////////////////////
 typedef struct EMTClientQueryCreditMarginRateRsp
@@ -2117,20 +2144,20 @@ typedef struct EMTClientQueryCreditMarginRateRsp
 |保证金率查询应答结构体|EMTClientQueryCreditMarginRateRsp|||
 |:----------------|:----------------|:----------------|:-----|
 |<b>变量名称</b>   |<b>标识</b>      |<b>类型及长度</b> |<b>描述</b>|
-|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#EMT_MARKET_TYPE)|
+|证券市场             |market                |enum              |参照字典<br>[EMT_MARKET_TYPE](#emt_market_type)|
 |证券代码             |ticker                |char[16]          ||
-|融资状态             |credit_fund_ctrl      |enum              |参照字典<br>[EMT_CREDIT_FUND_CTRL_TYPE](#EMT_CREDIT_FUND_CTRL_TYPE)|
+|融资状态             |credit_fund_ctrl      |enum              |参照字典<br>[EMT_CREDIT_FUND_CTRL_TYPE](#emt_credit_fund_ctrl_type)|
 |融资保证金比例       |margin_rate_fund       |double           ||
-|融券状态             |credit_stk_ctrl       |enum              |参照字典<br>[EMT_CREDIT_STK_CTRL_TYPE](#EMT_CREDIT_STK_CTRL_TYPE)|
+|融券状态             |credit_stk_ctrl       |enum              |参照字典<br>[EMT_CREDIT_STK_CTRL_TYPE](#emt_credit_stk_ctrl_type)|
 |融券保证金比例       |margin_rate_stk       |double            ||
 
 # 4. EMTTraderSPI业务返回接口
 
 ## 4.1. SPI接口描述
 
-### 4.1.1. <span id="OnDisconnected">OnDisconnected</span>
+### 4.1.1. <a id="ondisconnected">OnDisconnected</a>
 
-```c like
+```c++
 ///当客户端的某个连接与交易后台通信连接断开时，该方法被调用。
 ///@param reason 错误原因，请与错误代码表对应
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -2138,18 +2165,18 @@ typedef struct EMTClientQueryCreditMarginRateRsp
 virtual void OnDisconnected(uint64_t session_id, int reason) {};
 ```
 
-### 4.1.2. <span id="OnError">OnError</span>
+### 4.1.2. <a id="onerror">OnError</a>
 
-```c like
+```c++
 ///错误应答
 ///@param error_info 当服务器响应发生错误时的具体的错误代码和错误信息,当error_info为空，或者error_info.error_id为0时，表明没有错误
 ///@remark 此函数只有在服务器发生错误时才会调用，一般无需用户处理
 virtual void OnError(EMTRI *error_info) {};
 ```
 
-### 4.1.3. <span id="OnOrderEvent">OnOrderEvent</span>
+### 4.1.3. <a id="onorderevent">OnOrderEvent</a>
 
-```c like
+```c++
 ///报单通知
 ///@param order_info 订单响应具体信息，用户可以通过order_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单，order_info.qty_left字段在订单为未成交、部成、全成、废单状态时，表示此订单还没有成交的数量，在部撤、全撤状态时，表示此订单被撤的数量。order_info.order_cancel_emt_id为其所对应的撤单ID，不为0时表示此单被撤成功
 ///@param error_info 订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2158,9 +2185,9 @@ virtual void OnError(EMTRI *error_info) {};
 virtual void OnOrderEvent(EMTOrderInfo *order_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.4. <span id="OnTradeEvent">OnTradeEvent</span>
+### 4.1.4. <a id="ontradeevent">OnTradeEvent</a>
 
-```c like
+```c++
 ///成交通知
 ///@param trade_info 成交回报的具体信息，用户可以通过trade_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。对于上交所，exec_id可以唯一标识一笔成交。当发现2笔成交回报拥有相同的exec_id，则可以认为此笔交易自成交了。对于深交所，exec_id是唯一的，暂时无此判断机制。report_index+market字段可以组成唯一标识表示成交回报。
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -2168,9 +2195,9 @@ virtual void OnOrderEvent(EMTOrderInfo *order_info, EMTRI *error_info, uint64_t 
 virtual void OnTradeEvent(EMTTradeReport *trade_info, uint64_t session_id) {};
 ```
 
-### 4.1.5. <span id="OnCancelOrderError">OnCancelOrderError</span>
+### 4.1.5. <a id="oncancelordererror">OnCancelOrderError</a>
 
-```c like
+```c++
 ///撤单出错响应
 ///@param cancel_info 撤单具体信息，包括撤单的order_cancel_emt_id和待撤单的order_emt_id
 ///@param error_info 撤单被拒绝或者发生错误时错误代码和错误信息，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2179,9 +2206,9 @@ virtual void OnTradeEvent(EMTTradeReport *trade_info, uint64_t session_id) {};
 virtual void OnCancelOrderError(EMTOrderCancelInfo *cancel_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.6. <span id="OnQueryOrder">OnQueryOrder</span>
+### 4.1.6. <a id="onqueryorder">OnQueryOrder</a>
 
-```c like
+```c++
 ///请求查询报单响应
 ///@param order_info 查询到的一个报单
 ///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2192,9 +2219,9 @@ virtual void OnCancelOrderError(EMTOrderCancelInfo *cancel_info, EMTRI *error_in
 virtual void OnQueryOrder(EMTQueryOrderRsp *order_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.7. <span id="OnQueryOrderByPage">OnQueryOrderByPage</span>
+### 4.1.7. <a id="onqueryorderbypage">OnQueryOrderByPage</a>
 
-```c like
+```c++
 ///分页请求查询报单响应
 ///@param order_info 查询到的一个报单
 ///@param req_count 请求到的最大数量
@@ -2207,9 +2234,9 @@ virtual void OnQueryOrder(EMTQueryOrderRsp *order_info, EMTRI *error_info, int r
 virtual void OnQueryOrderByPage(EMTQueryOrderRsp *order_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.8. <span id="OnQueryTrade">OnQueryTrade</span>
+### 4.1.8. <a id="onquerytrade">OnQueryTrade</a>
 
-```c like
+```c++
 ///请求查询成交响应
 ///@param trade_info 查询到的一个成交回报
 ///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2220,9 +2247,9 @@ virtual void OnQueryOrderByPage(EMTQueryOrderRsp *order_info, int64_t req_count,
 virtual void OnQueryTrade(EMTQueryTradeRsp *trade_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.9. <span id="OnQueryTradeByPage">OnQueryTradeByPage</span>
+### 4.1.9. <a id="onquerytradebypage">OnQueryTradeByPage</a>
 
-```c like
+```c++
 ///分页请求查询成交响应
 ///@param trade_info 查询到的一个成交信息
 ///@param req_count 请求到的最大数量
@@ -2235,9 +2262,9 @@ virtual void OnQueryTrade(EMTQueryTradeRsp *trade_info, EMTRI *error_info, int r
 virtual void OnQueryTradeByPage(EMTQueryTradeRsp *trade_info, int64_t req_count, int64_t trade_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.10. <span id="OnQueryPosition">OnQueryPosition</span>
+### 4.1.10. <a id="onqueryposition">OnQueryPosition</a>
 
-```c like
+```c++
 ///请求查询投资者持仓响应
 ///@param position 查询到的一只股票的持仓情况
 ///@param error_info 查询账户持仓发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2248,9 +2275,9 @@ virtual void OnQueryTradeByPage(EMTQueryTradeRsp *trade_info, int64_t req_count,
 virtual void OnQueryPosition(EMTQueryStkPositionRsp *position, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.11. <span id="OnQueryPositionByPage">OnQueryPositionByPage</span>
+### 4.1.11. <a id="onquerypositionbypage">OnQueryPositionByPage</a>
 
-```c like
+```c++
 ///分页请求查询持仓响应
 ///@param trade_info 查询到的一个持仓信息
 ///@param req_count 请求到的最大数量
@@ -2263,9 +2290,9 @@ virtual void OnQueryPosition(EMTQueryStkPositionRsp *position, EMTRI *error_info
 virtual void OnQueryPositionByPage(EMTQueryStkPositionRsp *trade_info, int64_t req_count, int64_t trade_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.12. <span id="OnQueryAsset">OnQueryAsset</span>
+### 4.1.12. <a id="onqueryasset">OnQueryAsset</a>
 
-```c like
+```c++
 ///请求查询资金账户响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param asset 查询到的资金账户情况
 ///@param error_info 查询资金账户发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2276,9 +2303,9 @@ virtual void OnQueryPositionByPage(EMTQueryStkPositionRsp *trade_info, int64_t r
 virtual void OnQueryAsset(EMTQueryAssetRsp *asset, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.13. <span id="OnQueryStructuredFund">OnQueryStructuredFund</span>
+### 4.1.13. <a id="onquerystructuredfund">OnQueryStructuredFund</a>
 
-```c like
+```c++
 ///请求查询分级基金信息响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 查询到的分级基金情况
 ///@param error_info 查询分级基金发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2289,9 +2316,9 @@ virtual void OnQueryAsset(EMTQueryAssetRsp *asset, EMTRI *error_info, int reques
 virtual void OnQueryStructuredFund(EMTStructuredFundInfo *fund_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.14. <span id="OnQueryFundTransfer">OnQueryFundTransfer</span>
+### 4.1.14. <a id="onqueryfundtransfer">OnQueryFundTransfer</a>
 
-```c like
+```c++
 ///请求查询资金划拨订单响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_transfer_info 查询到的资金账户情况
 ///@param error_info 查询资金账户发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2302,9 +2329,9 @@ virtual void OnQueryStructuredFund(EMTStructuredFundInfo *fund_info, EMTRI *erro
 virtual void OnQueryFundTransfer(EMTFundTransferNotice *fund_transfer_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.15. <span id="OnFundTransfer">OnFundTransfer</span>
+### 4.1.15. <a id="onfundtransfer">OnFundTransfer</a>
 
-```c like
+```c++
 ///资金划拨通知
 ///@param fund_transfer_info 资金划拨通知的具体信息，用户可以通过fund_transfer_info.serial_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 资金划拨订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。当资金划拨方向为一号两中心节点之间划拨，且error_info.error_id=11000384时，error_info.error_msg为结点中可用于划拨的资金（以整数为准），用户需进行stringToInt的转化，可据此填写合适的资金，再次发起划拨请求
@@ -2313,9 +2340,9 @@ virtual void OnQueryFundTransfer(EMTFundTransferNotice *fund_transfer_info, EMTR
 virtual void OnFundTransfer(EMTFundTransferNotice *fund_transfer_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.16. <span id="OnQueryETF">OnQueryETF</span>
+### 4.1.16. <a id="onqueryetf">OnQueryETF</a>
 
-```c like
+```c++
 ///请求查询ETF清单文件的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param etf_info 查询到的ETF清单文件情况
 ///@param error_info 查询ETF清单文件发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2326,9 +2353,9 @@ virtual void OnFundTransfer(EMTFundTransferNotice *fund_transfer_info, EMTRI *er
 virtual void OnQueryETF(EMTQueryETFBaseRsp *etf_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.17. <span id="OnQueryETFBasket">OnQueryETFBasket</span>
+### 4.1.17. <a id="onqueryetfbasket">OnQueryETFBasket</a>
 
-```c like
+```c++
 ///请求查询ETF股票篮的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param etf_component_info 查询到的ETF合约的相关成分股信息
 ///@param error_info 查询ETF股票篮发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2339,9 +2366,9 @@ virtual void OnQueryETF(EMTQueryETFBaseRsp *etf_info, EMTRI *error_info, int req
 virtual void OnQueryETFBasket(EMTQueryETFComponentRsp *etf_component_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.18. <span id="OnQueryIPOInfoList">OnQueryIPOInfoList</span>
+### 4.1.18. <a id="onqueryipoinfoList">OnQueryIPOInfoList</a>
 
-```c like
+```c++
 ///请求查询今日新股申购信息列表的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param ipo_info 查询到的今日新股申购的一只股票信息
 ///@param error_info 查询今日新股申购信息列表发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2352,9 +2379,9 @@ virtual void OnQueryETFBasket(EMTQueryETFComponentRsp *etf_component_info, EMTRI
 virtual void OnQueryIPOInfoList(EMTQueryIPOTickerRsp *ipo_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.19. <span id="OnQueryIPOQuotaInfo">OnQueryIPOQuotaInfo</span>
+### 4.1.19. <a id="onqueryipoquotainfo">OnQueryIPOQuotaInfo</a>
 
-```c like
+```c++
 ///请求查询用户新股申购额度信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param quota_info 查询到的用户某个市场的今日新股申购额度信息
 ///@param error_info 查查询用户新股申购额度信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2365,9 +2392,9 @@ virtual void OnQueryIPOInfoList(EMTQueryIPOTickerRsp *ipo_info, EMTRI *error_inf
 virtual void OnQueryIPOQuotaInfo(EMTQueryIPOQuotaRsp *quota_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.20. <span id="OnQueryOptionAuctionInfo">OnQueryOptionAuctionInfo</span>
+### 4.1.20. <a id="onqueryoptionauctioninfo">OnQueryOptionAuctionInfo</a>
 
-```c like
+```c++
 ///请求查询期权合约的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param option_info 查询到的期权合约情况
 ///@param error_info 查询期权合约发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2378,9 +2405,9 @@ virtual void OnQueryIPOQuotaInfo(EMTQueryIPOQuotaRsp *quota_info, EMTRI *error_i
 virtual void OnQueryOptionAuctionInfo(EMTQueryOptionAuctionInfoRsp *option_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.21. <span id="OnCreditCashRepay">OnCreditCashRepay</span>
+### 4.1.21. <a id="oncreditcashrepay">OnCreditCashRepay</a>
 
-```c like
+```c++
 ///融资融券业务中现金直接还款的响应
 ///@param cash_repay_info 现金直接还款通知的具体信息，用户可以通过cash_repay_info.emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 现金还款发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2389,9 +2416,9 @@ virtual void OnQueryOptionAuctionInfo(EMTQueryOptionAuctionInfoRsp *option_info,
 virtual void OnCreditCashRepay(EMTCrdCashRepayRsp *cash_repay_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.22. <span id="OnCreditCashRepayDebtInterestFee">OnCreditCashRepayDebtInterestFee</span>
+### 4.1.22. <a id="oncreditcashrepaydebtinterestfee">OnCreditCashRepayDebtInterestFee</a>
 
-```c like
+```c++
 ///融资融券业务中现金还息的响应
 ///@param cash_repay_info 现金还息通知的具体信息，用户可以通过cash_repay_info.emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 现金还息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2400,9 +2427,9 @@ virtual void OnCreditCashRepay(EMTCrdCashRepayRsp *cash_repay_info, EMTRI *error
 virtual void OnCreditCashRepayDebtInterestFee(EMTCrdCashRepayDebtInterestFeeRsp *cash_repay_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.23. <span id="OnQueryCreditCashRepayInfo">OnQueryCreditCashRepayInfo</span>
+### 4.1.23. <a id="onquerycreditcashrepayinfo">OnQueryCreditCashRepayInfo</a>
 
-```c like
+```c++
 ///请求查询融资融券业务中的现金直接还款报单的响应
 ///@param cash_repay_info 查询到的某一笔现金直接还款通知的具体信息
 ///@param error_info 查询现金直接报单发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2413,9 +2440,9 @@ virtual void OnCreditCashRepayDebtInterestFee(EMTCrdCashRepayDebtInterestFeeRsp 
 virtual void OnQueryCreditCashRepayInfo(EMTCrdCashRepayInfo *cash_repay_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.24. <span id="OnQueryCreditFundInfo">OnQueryCreditFundInfo</span>
+### 4.1.24. <a id="onquerycreditfundinfo">OnQueryCreditFundInfo</a>
 
-```c like
+```c++
 ///请求查询信用账户额外信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 查询到的信用账户额外信息情况
 ///@param error_info 查询信用账户额外信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2425,9 +2452,9 @@ virtual void OnQueryCreditCashRepayInfo(EMTCrdCashRepayInfo *cash_repay_info, EM
 virtual void OnQueryCreditFundInfo(EMTCrdFundInfo *fund_info, EMTRI *error_info, int request_id, uint64_t session_id) {};
 ```
 
-### 4.1.25. <span id="OnQueryCreditDebtInfo">OnQueryCreditDebtInfo</span>
+### 4.1.25. <a id="onquerycreditdebtinfo">OnQueryCreditDebtInfo</a>
 
-```c like
+```c++
 ///请求查询信用账户负债信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param debt_info 查询到的信用账户合约负债情况
 ///@param error_info 查询信用账户负债信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2438,9 +2465,9 @@ virtual void OnQueryCreditFundInfo(EMTCrdFundInfo *fund_info, EMTRI *error_info,
 virtual void OnQueryCreditDebtInfo(EMTCrdDebtInfo *debt_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.26. <span id="OnQueryCreditDebtInfoByPage">OnQueryCreditDebtInfoByPage</span>
+### 4.1.26. <a id="onquerycreditdebtinfobypage">OnQueryCreditDebtInfoByPage</a>
 
-```c like
+```c++
 ///分页请求查询负债信息响应
 ///@param order_info 查询到的一个负债信息
 ///@param req_count 请求到的最大数量
@@ -2453,9 +2480,9 @@ virtual void OnQueryCreditDebtInfo(EMTCrdDebtInfo *debt_info, EMTRI *error_info,
 virtual void OnQueryCreditDebtInfoByPage(EMTCrdDebtInfo *debt_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.27. <span id="OnQueryCreditTickerDebtInfo">OnQueryCreditTickerDebtInfo</span>
+### 4.1.27. <a id="onquerycredittickerdebtinfo">OnQueryCreditTickerDebtInfo</a>
 
-```c like
+```c++
 ///请求查询信用账户指定证券负债未还信息响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param debt_info 查询到的信用账户指定证券负债未还信息情况
 ///@param error_info 查询信用账户指定证券负债未还信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2466,9 +2493,9 @@ virtual void OnQueryCreditDebtInfoByPage(EMTCrdDebtInfo *debt_info, int64_t req_
 virtual void OnQueryCreditTickerDebtInfo(EMTCrdDebtStockInfo *debt_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.28. <span id="OnQueryCreditAssetDebtInfo">OnQueryCreditAssetDebtInfo</span>
+### 4.1.28. <a id="onquerycreditassetdebtinfo">OnQueryCreditAssetDebtInfo</a>
 
-```c like
+```c++
 ///请求查询信用账户待还资金的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param remain_amount 查询到的信用账户待还资金
 ///@param error_info 查询信用账户待还资金发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2478,9 +2505,9 @@ virtual void OnQueryCreditTickerDebtInfo(EMTCrdDebtStockInfo *debt_info, EMTRI *
 virtual void OnQueryCreditAssetDebtInfo(double remain_amount, EMTRI *error_info, int request_id, uint64_t session_id) {};
 ```
 
-### 4.1.29. <span id="OnQueryCreditTickerAssignInfo">OnQueryCreditTickerAssignInfo</span>
+### 4.1.29. <a id="onquerycredittickerassigninfo">OnQueryCreditTickerAssignInfo</a>
 
-```c like
+```c++
 ///请求查询信用账户可融券头寸信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param assign_info 查询到的信用账户可融券头寸信息
 ///@param error_info 查询信用账户可融券头寸信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2491,9 +2518,9 @@ virtual void OnQueryCreditAssetDebtInfo(double remain_amount, EMTRI *error_info,
 virtual void OnQueryCreditTickerAssignInfo(EMTClientQueryCrdPositionStkInfo *assign_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.30. <span id="OnQueryCreditTickerAssignInfoByPage">OnQueryCreditTickerAssignInfoByPage</span>
+### 4.1.30. <a id="onquerycredittickerassigninfobypage">OnQueryCreditTickerAssignInfoByPage</a>
 
-```c like
+```c++
 ///分页请求查询证券头寸信息响应
 ///@param order_info 查询到的一个证券头寸信息
 ///@param req_count 请求到的最大数量
@@ -2506,9 +2533,9 @@ virtual void OnQueryCreditTickerAssignInfo(EMTClientQueryCrdPositionStkInfo *ass
 virtual void OnQueryCreditTickerAssignInfoByPage(EMTClientQueryCrdPositionStkInfo* debt_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.31. <span id="OnQueryCreditExcessStock">OnQueryCreditExcessStock</span>
+### 4.1.31. <a id="onquerycreditexcessstock">OnQueryCreditExcessStock</a>
 
-```c like
+```c++
 ///融资融券业务中请求查询指定余券信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param stock_info 查询到的余券信息
 ///@param error_info 查询信用账户余券信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2518,9 +2545,9 @@ virtual void OnQueryCreditTickerAssignInfoByPage(EMTClientQueryCrdPositionStkInf
 virtual void OnQueryCreditExcessStock(EMTClientQueryCrdSurplusStkRspInfo* stock_info, EMTRI *error_info, int request_id, uint64_t session_id) {};
 ```
 
-### 4.1.32. <span id="OnQueryMulCreditExcessStock">OnQueryMulCreditExcessStock</span>
+### 4.1.32. <a id="onquerymulcreditexcessstock">OnQueryMulCreditExcessStock</a>
 
-```c like
+```c++
 ///融资融券业务中请求查询余券信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param stock_info 查询到的余券信息
 ///@param error_info 查询信用账户余券信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2531,9 +2558,9 @@ virtual void OnQueryCreditExcessStock(EMTClientQueryCrdSurplusStkRspInfo* stock_
 virtual void OnQueryMulCreditExcessStock(EMTClientQueryCrdSurplusStkRspInfo* stock_info, EMTRI *error_info, int request_id, uint64_t session_id, bool is_last) {};
 ```
 
-### 4.1.33. <span id="OnCreditExtendDebtDate">OnCreditExtendDebtDate</span>
+### 4.1.33. <a id="oncreditextenddebtdate">OnCreditExtendDebtDate</a>
 
-```c like
+```c++
 ///融资融券业务中负债合约展期的通知
 ///@param debt_extend_info 负债合约展期通知的具体信息，用户可以通过debt_extend_info.emtid来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。
 ///@param error_info 负债合约展期订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。
@@ -2542,9 +2569,9 @@ virtual void OnQueryMulCreditExcessStock(EMTClientQueryCrdSurplusStkRspInfo* sto
 virtual void OnCreditExtendDebtDate(EMTCreditDebtExtendNotice *debt_extend_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.34. <span id="OnQueryCreditExtendDebtDateOrders">OnQueryCreditExtendDebtDateOrders</span>
+### 4.1.34. <a id="onquerycreditextenddebtdateorders">OnQueryCreditExtendDebtDateOrders</a>
 
-```c like
+```c++
 ///查询融资融券业务中负债合约展期订单响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param debt_extend_info 查询到的负债合约展期情况
 ///@param error_info 查询负债合约展期发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误。当error_info.error_id=11000350时，表明没有记录，当为其他非0值时，表明合约发生拒单时的错误原因
@@ -2555,9 +2582,9 @@ virtual void OnCreditExtendDebtDate(EMTCreditDebtExtendNotice *debt_extend_info,
 virtual void OnQueryCreditExtendDebtDateOrders(EMTCreditDebtExtendNotice *debt_extend_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.35. <span id="OnQueryCreditFundExtraInfo">OnQueryCreditFundExtraInfo</span>
+### 4.1.35. <a id="onquerycreditfundextrainfo">OnQueryCreditFundExtraInfo</a>
 
-```c like
+```c++
 ///查询融资融券业务中信用账户附加信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 信用账户附加信息
 ///@param error_info 查询信用账户附加信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2567,9 +2594,9 @@ virtual void OnQueryCreditExtendDebtDateOrders(EMTCreditDebtExtendNotice *debt_e
 virtual void OnQueryCreditFundExtraInfo(EMTCrdFundExtraInfo *fund_info, EMTRI *error_info, int request_id, uint64_t session_id) {};
 ```
 
-### 4.1.36. <span id="OnQueryCreditPositionExtraInfo">OnQueryCreditPositionExtraInfo</span>
+### 4.1.36. <a id="onquerycreditpositionextrainfo">OnQueryCreditPositionExtraInfo</a>
 
-```c like
+```c++
 ///查询融资融券业务中信用账户指定证券的附加信息的响应，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线
 ///@param fund_info 信用账户指定证券的附加信息
 ///@param error_info 查询信用账户附加信息发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2580,9 +2607,9 @@ virtual void OnQueryCreditFundExtraInfo(EMTCrdFundExtraInfo *fund_info, EMTRI *e
 virtual void OnQueryCreditPositionExtraInfo(EMTCrdPositionExtraInfo *fund_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.37. <span id="OnOptionCombinedOrderEvent">OnOptionCombinedOrderEvent</span>
+### 4.1.37. <a id="onoptioncombinedorderevent">OnOptionCombinedOrderEvent</a>
 
-```c like
+```c++
 ///期权组合策略报单通知
 ///@param order_info 订单响应具体信息，用户可以通过order_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单，order_info.qty_left字段在订单为未成交、部成、全成、废单状态时，表示此订单还没有成交的数量，在部撤、全撤状态时，表示此订单被撤的数量。order_info.order_cancel_emt_id为其所对应的撤单ID，不为0时表示此单被撤成功
 ///@param error_info 订单被拒绝或者发生错误时错误代码和错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2591,9 +2618,9 @@ virtual void OnQueryCreditPositionExtraInfo(EMTCrdPositionExtraInfo *fund_info, 
 virtual void OnOptionCombinedOrderEvent(EMTOptCombOrderInfo *order_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.38. <span id="OnOptionCombinedTradeEvent">OnOptionCombinedTradeEvent</span>
+### 4.1.38. <a id="onoptioncombinedtradeevent">OnOptionCombinedTradeEvent</a>
 
-```c like
+```c++
 ///期权组合策略成交通知
 ///@param trade_info 成交回报的具体信息，用户可以通过trade_info.order_emt_id来管理订单，通过GetClientIDByEMTID() == client_id来过滤自己的订单。对于上交所，exec_id可以唯一标识一笔成交。当发现2笔成交回报拥有相同的exec_id，则可以认为此笔交易自成交了。对于深交所，exec_id是唯一的，暂时无此判断机制。report_index+market字段可以组成唯一标识表示成交回报。
 ///@param session_id 资金账户对应的session_id，登录时得到
@@ -2601,9 +2628,9 @@ virtual void OnOptionCombinedOrderEvent(EMTOptCombOrderInfo *order_info, EMTRI *
 virtual void OnOptionCombinedTradeEvent(EMTOptCombTradeReport *trade_info, uint64_t session_id) {};
 ```
 
-### 4.1.39. <span id="OnCancelOptionCombinedOrderError">OnCancelOptionCombinedOrderError</span>
+### 4.1.39. <a id="oncanceloptioncombinedordererror">OnCancelOptionCombinedOrderError</a>
 
-```c like
+```c++
 ///期权组合策略撤单出错响应
 ///@param cancel_info 撤单具体信息，包括撤单的order_cancel_emt_id和待撤单的order_emt_id
 ///@param error_info 撤单被拒绝或者发生错误时错误代码和错误信息，需要快速返回，否则会堵塞后续消息，当堵塞严重时，会触发断线，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2612,9 +2639,9 @@ virtual void OnOptionCombinedTradeEvent(EMTOptCombTradeReport *trade_info, uint6
 virtual void OnCancelOptionCombinedOrderError(EMTOptCombOrderCancelInfo *cancel_info, EMTRI *error_info, uint64_t session_id) {};
 ```
 
-### 4.1.40. <span id="OnQueryOptionCombinedOrders">OnQueryOptionCombinedOrders</span>
+### 4.1.40. <a id="onqueryoptioncombinedorders">OnQueryOptionCombinedOrders</a>
 
-```c like
+```c++
 ///请求查询期权组合策略报单响应
 ///@param order_info 查询到的一个报单
 ///@param error_info 查询报单时发生错误时，返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2625,9 +2652,9 @@ virtual void OnCancelOptionCombinedOrderError(EMTOptCombOrderCancelInfo *cancel_
 virtual void OnQueryOptionCombinedOrders(EMTQueryOptCombOrderRsp *order_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.41. <span id="OnQueryOptionCombinedOrdersByPage">OnQueryOptionCombinedOrdersByPage</span>
+### 4.1.41. <a id="onqueryoptioncombinedordersbypage">OnQueryOptionCombinedOrdersByPage</a>
 
-```c like
+```c++
 ///分页请求查询期权组合策略报单响应
 ///@param order_info 查询到的一个报单
 ///@param req_count 请求到的最大数量
@@ -2640,9 +2667,9 @@ virtual void OnQueryOptionCombinedOrders(EMTQueryOptCombOrderRsp *order_info, EM
 virtual void OnQueryOptionCombinedOrdersByPage(EMTQueryOptCombOrderRsp *order_info, int64_t req_count, int64_t order_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.42. <span id="OnQueryOptionCombinedTrades">OnQueryOptionCombinedTrades</span>
+### 4.1.42. <a id="onqueryoptioncombinedtrades">OnQueryOptionCombinedTrades</a>
 
-```c like
+```c++
 ///请求查询期权组合策略成交响应
 ///@param trade_info 查询到的一个成交回报
 ///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2653,9 +2680,9 @@ virtual void OnQueryOptionCombinedOrdersByPage(EMTQueryOptCombOrderRsp *order_in
 virtual void OnQueryOptionCombinedTrades(EMTQueryOptCombTradeRsp *trade_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.43. <span id="OnQueryOptionCombinedTradesByPage">OnQueryOptionCombinedTradesByPage</span>
+### 4.1.43. <a id="onqueryoptioncombinedtradesbypage">OnQueryOptionCombinedTradesByPage</a>
 
-```c like
+```c++
 ///分页请求查询期权组合策略成交响应
 ///@param trade_info 查询到的一个成交信息
 ///@param req_count 请求到的最大数量
@@ -2668,9 +2695,9 @@ virtual void OnQueryOptionCombinedTrades(EMTQueryOptCombTradeRsp *trade_info, EM
 virtual void OnQueryOptionCombinedTradesByPage(EMTQueryOptCombTradeRsp *trade_info, int64_t req_count, int64_t trade_sequence, int64_t query_reference, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.44. <span id="OnQueryOptionCombinedPosition">OnQueryOptionCombinedPosition</span>
+### 4.1.44. <a id="onqueryoptioncombinedposition">OnQueryOptionCombinedPosition</a>
 
-```c like
+```c++
 ///请求查询期权组合策略持仓响应
 ///@param position_info 查询到的一个持仓信息
 ///@param error_info 查询持仓发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2681,9 +2708,9 @@ virtual void OnQueryOptionCombinedTradesByPage(EMTQueryOptCombTradeRsp *trade_in
 virtual void OnQueryOptionCombinedPosition(EMTQueryOptCombPositionRsp *position_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.45. <span id="OnQueryOptionCombinedStrategyInfo">OnQueryOptionCombinedStrategyInfo</span>
+### 4.1.45. <a id="onqueryoptioncombinedstrategyinfo">OnQueryOptionCombinedStrategyInfo</a>
 
-```c like
+```c++
 ///请求查询期权组合策略信息响应
 ///@param strategy_info 查询到的一个组合策略信息
 ///@param error_info 查询成交回报发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2694,9 +2721,9 @@ virtual void OnQueryOptionCombinedPosition(EMTQueryOptCombPositionRsp *position_
 virtual void OnQueryOptionCombinedStrategyInfo(EMTQueryCombineStrategyInfoRsp *strategy_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.46. <span id="OnQueryCreditPledgeStkRate">OnQueryCreditPledgeStkRate</span>
+### 4.1.46. <a id="onquerycreditpledgestkrate">OnQueryCreditPledgeStkRate</a>
 
-```c like
+```c++
 ///查询融资融券业务中担保品折算率的响应
 ///@param pledge_stk_rate_info 担保品折算率信息，查询发生错误时返回空
 ///@param error_info 查询担保品折算率发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2706,15 +2733,15 @@ virtual void OnQueryOptionCombinedStrategyInfo(EMTQueryCombineStrategyInfoRsp *s
 virtual void OnQueryCreditPledgeStkRate(EMTClientQueryCreditPledgeStkRateRsp *pledge_stk_rate_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.47. <span id="OnQueryOptionCombinedExecPosition">OnQueryOptionCombinedExecPosition</span>
+### 4.1.47. <a id="onqueryoptioncombinedexecposition">OnQueryOptionCombinedExecPosition</a>
 
-```c like
+```c++
 virtual void OnQueryOptionCombinedExecPosition(EMTQueryOptCombExecPosRsp *position_info, EMTRI *error_info, int request_id, bool is_last, uint64_t session_id) {};
 ```
 
-### 4.1.48. <span id="OnQueryCreditMarginRate">OnQueryCreditMarginRate</span>
+### 4.1.48. <a id="onquerycreditmarginrate">OnQueryCreditMarginRate</a>
 
-```c like
+```c++
 ///查询融资融券保证金率
 ///@param margin_rate_info 融资融券保证金率信息，查询发生错误时返回空
 ///@param error_info 查询融资融券保证金率发生错误时返回的错误信息，当error_info为空，或者error_info.error_id为0时，表明没有错误
@@ -2728,7 +2755,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 
 ## 5.1. 字典定义
 
-### 5.1.1. <span id="EMT_MARKET_TYPE">市场代码-EMT_MARKET_TYPE</span>
+### 5.1.1. <a id="emt_market_type">市场代码-EMT_MARKET_TYPE</a>
 
 |枚举|取值|定义说明|
 |:----|:----|:----|
@@ -2737,7 +2764,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_MKT_SH_A         |2         |上海A股|
 |EMT_MKT_UNKNOWN      |3         |未知交易市场类型|
 
-### 5.1.2. <span id="EMT_PRICE_TYPE">报单价格类型- EMT_PRICE_TYPE</span>
+### 5.1.2. <a id="emt_price_type">报单价格类型- EMT_PRICE_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:--------|:-------|:-------|
@@ -2751,7 +2778,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_PRICE_LIMIT_OR_CANCEL        |8    |期权限价申报FOK|
 |EMT_PRICE_TYPE_UNKNOWN           |9    |未知或者无效价格类型|
 
-### 5.1.3. <span id="EMT_SIDE_TYPE">买卖方向- EMT_SIDE_TYPE</span>
+### 5.1.3. <a id="emt_side_type">买卖方向- EMT_SIDE_TYPE</a>
 
 |宏定义   |取值   |定义说明|
 |:--------|:-------|:-------|
@@ -2778,7 +2805,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_SIDE_OPT_SPLIT_FORCE_EXCH     |34    |组合策略的交易所强制拆分|
 |EMT_SIDE_UNKNOWN                  |50    |未知或者无效买卖方向|
 
-### 5.1.4. <span id="EMT_BUSINESS_TYPE">业务类型- EMT_BUSINESS_TYPE</span>
+### 5.1.4. <a id="emt_business_type">业务类型- EMT_BUSINESS_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:--------|:-------|:-------|
@@ -2799,7 +2826,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_BUSINESS_TYPE_FIXPRICE                              |14   |盘后固定定价交易|
 |EMT_BUSINESS_TYPE_UNKNOWN                               |15   |未知类型|
 
-### 5.1.5. <span id="EMT_ORDER_ACTION_STATUS_TYPE">报单操作状态类型-EMT_ORDER_ACTION_STATUS_TYPE</span>
+### 5.1.5. <a id="emt_order_action_status_type">报单操作状态类型-EMT_ORDER_ACTION_STATUS_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2807,7 +2834,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_ORDER_ACTION_STATUS_ACCEPTED                 |2    |已经接受|
 |EMT_ORDER_ACTION_STATUS_REJECTED               |3    |已经被拒绝|
 
-### 5.1.6. <span id="EMT_ORDER_STATUS_TYPE">报单状态- EMT_ORDER_STATUS_TYPE</span>
+### 5.1.6. <a id="emt_order_status_type">报单状态- EMT_ORDER_STATUS_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:--------|:-------|:-------|
@@ -2820,7 +2847,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_ORDER_STATUS_REJECTED                  |6    |已拒绝|
 |EMT_ORDER_STATUS_UNKNOWN                   |7    |未知订单状态|
 
-### 5.1.7. <span id="EMT_ORDER_SUBMIT_STATUS_TYPE">报单提交状态- EMT_ORDER_SUBMIT_STATUS_TYPE</span>
+### 5.1.7. <a id="emt_order_submit_status_type">报单提交状态- EMT_ORDER_SUBMIT_STATUS_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:--------|:-------|:-------|
@@ -2831,7 +2858,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_ORDER_SUBMIT_STATUS_CANCEL_REJECTED      |5    |撤单已经被拒绝|
 |EMT_ORDER_SUBMIT_STATUS_CANCEL_ACCEPTED      |6    |撤单已经被接受|
 
-### 5.1.8. <span id="TEMTOrderTypeType">保单类型- TEMTOrderTypeType</span>
+### 5.1.8. <a id="temtordertypetype">保单类型- TEMTOrderTypeType</a>
 
 |宏定义    |取值    |定义说明|
 |:--------|:-------|:-------|
@@ -2842,7 +2869,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_ORDT_ConditionalOrder         |'4'    |条件单|
 |EMT_ORDT_Swap                     |'5'    |互换单|
 
-### 5.1.9. <span id="TEMTTradeTypeType">成交类型- TEMTTradeTypeType</span>
+### 5.1.9. <a id="temttradetypetype">成交类型- TEMTTradeTypeType</a>
 
 |宏定义   |取值   |定义说明|
 |:--------|:-------|:-------|
@@ -2851,7 +2878,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_TRDT_PRIMARY            |'2'    |一级市场成交|
 |EMT_TRDT_CROSS_MKT_CASH     |'3'    |跨市场资金成交|
 
-### 5.1.10. <span id="EMT_TICKER_TYPE">证券类别-EMT_TICKER_TYPE</span>
+### 5.1.10. <a id="emt_ticker_type">证券类别-EMT_TICKER_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:--------|:-------|:-------|
@@ -2863,7 +2890,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_TICKER_TYPE_TECH_STOCK     |5    |科创板股票（上海）|
 |EMT_TICKER_TYPE_UNKNOWN        |6    |未知类型|
 
-### 5.1.11. <span id="ETF_REPLACE_TYPE">现金替代标识-ETF_REPLACE_TYPE</span>
+### 5.1.11. <a id="etf_replace_type">现金替代标识-ETF_REPLACE_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2878,7 +2905,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |ERT_CASH_MUST_INTER_HK            |8    |港市必须现金替代（仅适用于跨沪深港ETF产品）|
 |EPT_INVALID                       |9    |无效值|
 
-### 5.1.12. <span id="EMT_POSITION_EFFECT_TYPE">开平标志-EMT_POSITION_EFFECT_TYPE</span>
+### 5.1.12. <a id="emt_position_etfect_type">开平标志-EMT_POSITION_EFFECT_TYPE</a>
 
 |宏定义    |取值    |定义说明|
 |:-------|:--------|:--------|
@@ -2896,7 +2923,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_POSITION_EFFECT_CREDIT_FORCE_UNCOND   |11       |信用业务无条件强平|
 |EMT_POSITION_EFFECT_UNKNOWN               |12       |未知的开平标识类型|
 
-### 5.1.13. <span id="EMT_FUND_TRANSFER_TYPE">资金流转方向类型-EMT_FUND_TRANSFER_TYPE</span>
+### 5.1.13. <a id="emt_fund_transfer_type">资金流转方向类型-EMT_FUND_TRANSFER_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2906,7 +2933,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_FUND_INTER_TRANSFER_IN      |3    |跨节点转入 从对端EMT节点2，转入到本EMT节点1，EMT服务器之间划拨，只能跨账户用户使用|
 |EMT_FUND_TRANSFER_UNKNOWN       |4    |未知类型|
 
-### 5.1.14. <span id="EMT_ACCOUNT_TYPE">账户类型-EMT_ACCOUNT_TYPE</span>
+### 5.1.14. <a id="emt_account_type">账户类型-EMT_ACCOUNT_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2915,7 +2942,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_ACCOUNT_DERIVE           |2    |衍生品账户|
 |EMT_ACCOUNT_UNKNOWN          |3    |未知账户类型|
 
-### 5.1.15. <span id="EMT_FUND_OPER_STATUS">柜台资金操作结果-EMT_FUND_OPER_STATUS</span>
+### 5.1.15. <a id="emt_fund_oper_status">柜台资金操作结果-EMT_FUND_OPER_STATUS</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2925,7 +2952,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_FUND_OPER_SUBMITTED            |3    |已提交到集中柜台处理|
 |EMT_FUND_OPER_UNKNOWN              |4    |未知|
 
-### 5.1.16. <span id="EMT_LOG_LEVEL">日志输出级别类型-EMT_LOG_LEVEL</span>
+### 5.1.16. <a id="emt_log_level">日志输出级别类型-EMT_LOG_LEVEL</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2936,14 +2963,14 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_LOG_LEVEL_DEBUG                 |4    |debug级别|
 |EMT_LOG_LEVEL_TRACE                 |5    |trace级别|
 
-### 5.1.17. <span id="EMT_PROTOCOL_TYPE">通讯传输协议方式-EMT_PROTOCOL_TYPE</span>
+### 5.1.17. <a id="emt_protocol_type">通讯传输协议方式-EMT_PROTOCOL_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
 |EMT_PROTOCOL_TCP                 |1    |采用TCP方式传输|
 |EMT_PROTOCOL_UDP                 |2    |采用UDP方式传输(仅行情接口支持)|
 
-### 5.1.18. <span id="EMT_EXCHANGE_TYPE">交易所类型-EMT_EXCHANGE_TYPE</span>
+### 5.1.18. <a id="emt_exchange_type">交易所类型-EMT_EXCHANGE_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2951,15 +2978,15 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_EXCHANGE_SZ                 |2    |深证|
 |EMT_EXCHANGE_UNKNOWN            |3    |不存在的交易所类型|
 
-### 5.1.19. <span id="EMT_DEBT_TYPE">合约类型-EMT_DEBT_TYPE</span>
+### 5.1.19. <a id="emt_debt_type">合约类型-EMT_DEBT_TYPE</a>
 
-|枚举    |取值    |定义说明|
+|枚举    |取值    |定义说明  |
 |:------|:-------|:--------|
 |EMT_DEBT_TYPE_MONEY                 |1    |融资|
 |EMT_DEBT_TYPE_STOCK                 |2    |融券|
 |EMT_DEBT_TYPE_UNKNOWN               |3    |未知|
 
-### 5.1.20. <span id="EMT_TE_RESUME_TYPE">公有流重传方式-EMT_TE_RESUME_TYPE</span>
+### 5.1.20. <a id="emt_te_resume_type">公有流重传方式-EMT_TE_RESUME_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2967,7 +2994,7 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_TERT_RESUME                  |2    |从从上次收到的续传（暂未支持）|
 |EMT_TERT_QUICK                   |3    |只传送登录后公有流（订单响应、成交回报）的内容|
 
-### 5.1.21. <span id="EMT_DEBT_EXTEND_OPER_STATUS">柜台负债展期操作状态-EMT_DEBT_EXTEND_OPER_STATUS</span>
+### 5.1.21. <a id="emt_debt_extend_oper_status">柜台负债展期操作状态-EMT_DEBT_EXTEND_OPER_STATUS</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
@@ -2975,19 +3002,36 @@ virtual void OnQueryCreditMarginRate(EMTClientQueryCreditMarginRateRsp *margin_r
 |EMT_TERT_RESUME                  |2    |从从上次收到的续传（暂未支持）|
 |EMT_TERT_QUICK                   |3    |只传送登录后公有流（订单响应、成交回报）的内容|
 
-### 5.1.22. <span id="EMT_CREDIT_FUND_CTRL_TYPE">融资状态枚举类型-EMT_CREDIT_FUND_CTRL_TYPE</span>
+### 5.1.22. <a id="emt_credit_fund_ctrl_type">融资状态枚举类型-EMT_CREDIT_FUND_CTRL_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
 |EMT_CREDIT_FUND_CTRL_PERMIT                 |0    |融资状态|
 |EMT_CREDIT_FUND_CTRL_FORBID                 |1    |禁止融资|
 
-### 5.1.23. <span id="EMT_CREDIT_STK_CTRL_TYPE">融券状态枚举类型-EMT_CREDIT_STK_CTRL_TYPE</span>
+### 5.1.23. <a id="emt_credit_stk_ctrl_type">融券状态枚举类型-EMT_CREDIT_STK_CTRL_TYPE</a>
 
 |枚举    |取值    |定义说明|
 |:------|:-------|:--------|
 |EMT_CREDIT_STK_CTRL_PERMIT                 |0    |融券状态|
 |EMT_CREDIT_STK_CTRL_FORBID                 |1    |禁止融券|
+
+### 5.1.24. <a id="emt_position_direction_type">持仓方向类型-EMT_POSITION_DIRECTION_TYPE</a>
+
+|枚举    |取值    |定义说明|
+|:------|:-------|:--------|
+|EMT_POSITION_DIRECTION_NET                 |0    |净|
+|EMT_POSITION_DIRECTION_LONG                |1    |多（期权则为权利方）|
+|EMT_POSITION_DIRECTION_SHORT               |2    |空（期权则为义务方）|
+|EMT_POSITION_DIRECTION_COVERED             |3    |备兑（期权则为备兑义务方）|
+
+### 5.1.25. <a id="emt_crd_cr_status">直接还款状态类型-EMT_CRD_CR_STATUS</a>
+
+|枚举    |取值    |定义说明|
+|:------|:-------|:--------|
+|EMT_CRD_CR_INIT                 |0    |初始、未处理状态|
+|EMT_CRD_CR_SUCCESS              |1    |已成功处理状态|
+|EMT_CRD_CR_FAILED               |2    |处理失败状态|
 
 ## 5.2. 错误编码列表
 
